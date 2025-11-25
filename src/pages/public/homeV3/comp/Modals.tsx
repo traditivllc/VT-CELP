@@ -62,7 +62,7 @@ export const PlanModal = () => (
 export const BoostModal = ({
   onLogin,
 }: {
-  onLogin: (name: string) => void;
+  onLogin: (name: string | null) => void;
 }) => {
   const [step, setStep] = useState(1); // 1: Email, 2: OTP
   const [email, setEmail] = useState("");

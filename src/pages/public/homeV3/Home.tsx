@@ -6,7 +6,7 @@ import { PlanModal, BoostModal } from "./comp/Modals";
 import ScoreRing from "./comp/ScoreRing";
 
 // --- DESKTOP COMPONENT ---
-const DesktopRoot = ({ userName }: { userName: string }) => {
+const DesktopRoot = ({ userName }: { userName: string | null }) => {
   const handleExportCsv = () => {
     // Simple CSV Export logic
     const data = [
@@ -691,7 +691,7 @@ const MobileRoot = () => {
 
 // --- APP ROOT ---
 const App = () => {
-  const [userName, setUserName] = useState(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   return (
     <>
@@ -713,7 +713,11 @@ const App = () => {
       <MobileRoot />
 
       <PlanModal />
-      <BoostModal onLogin={setUserName} />
+      <BoostModal
+        onLogin={(name) => {
+          setUserName(name || "Guest User");
+        }}
+      />
     </>
   );
 };
