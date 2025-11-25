@@ -8,6 +8,10 @@ import SpeakingPracticePage from "@/pages/public/AssesmentPractice/AssessmentPra
 import TaskListPage from "@/pages/public/TaskList/TaskListPage";
 // import WritingPracticePage from "@/pages/public/WritingPracticePage";
 
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import HomeV3 from "@/pages/public/homeV3/Home";
+
 export default function PublicRoutes() {
   return (
     <AssessmentHistoryProvider>
@@ -23,6 +27,8 @@ export default function PublicRoutes() {
 
         <Route path="/test-history" element={<AssessmentHistoryPage />} />
         <Route path="/sa" element={<TestSlider questions={[]} />} />
+
+        <Route path="v3" element={<HomeV3 />} />
       </Routes>
     </AssessmentHistoryProvider>
   );
