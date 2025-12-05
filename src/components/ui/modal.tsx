@@ -14,7 +14,7 @@ export default function Modal({
   const theModal = useRef<BootstrapModal | null>(null);
 
   useEffect(() => {
-    theModal.current = new BootstrapModal("#boostModal");
+    theModal.current = BootstrapModal.getOrCreateInstance(`#${id}`);
     addEventListener("show.bs.modal", () => {
       theModal.current?.show();
     });
