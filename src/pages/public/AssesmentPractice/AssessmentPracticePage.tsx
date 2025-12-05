@@ -3,20 +3,25 @@ import TestInterface from "@/components/TestInterface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useAssessment } from "@/context/assessmentV2/useAssessment";
+import { useEvaluation } from "@/context/assessmentV3/Evaluation.provider";
 import { cn } from "@/lib/utils";
-import type {
-  AssessmentHistory,
-  TAssessmentType,
-} from "@/types/AssessmentTypes.types";
+import { getPromptsByTypeWithRandomQuestion } from "@/services/celpip-services";
+import {
+  EVALUATION_STATUS,
+  type PromptsWithQuestionAndEvaluation,
+  type TAssessmentType,
+} from "@/types/AssessmentTypes.type";
 import { AlignLeft, ArrowLeft, Check, Lock, Play, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
 
 const PracticePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showResumeAlert, setShowResumeAlert] = useState(false);
+  const [selectedPrompt, setSelectedPrompt] =
+    useState<PromptsWithQuestionAndEvaluation | null>(null);
+  const [promptsList, setPromptsList] =
+    useState<PromptsWithQuestionAndEvaluation[]>();
 
   const redirect = useNavigate();
   const { testType, taskTypeUUID, action } = useParams<{
@@ -25,18 +30,21 @@ const PracticePage = () => {
     action: "result";
   }>();
 
-  const {
-    getPromptsByType,
-    restartByPromptId,
-    assignQuestionToPrompt,
-    getAssessmentHistory,
-    isTimeRunning,
-  } = useAssessment();
-
-  const prompts = getPromptsByType(testType || "speaking");
+  const { isTimeRunning } = useEvaluation();
 
   // Handle responsive sidebar behavior
   useEffect(() => {
+    async function fetchPrompts() {
+      const prompts = await getPromptsByTypeWithRandomQuestion(
+        testType || "speaking"
+      );
+      setPromptsList(prompts);
+      setSelectedPrompt(
+        prompts.find((prompt) => prompt.promptUuid === taskTypeUUID) || null
+      );
+    }
+    fetchPrompts();
+
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         // lg breakpoint
@@ -55,25 +63,15 @@ const PracticePage = () => {
 
   // setSelectedTask(prompt.id);
 
-  const getTaskStatus = (
-    prompt: AssessmentHistory
-  ): "completed" | "unlocked" | "locked" => {
-    const promptHistory = prompt;
-    if (promptHistory?.isCompletedOnce) return "completed";
-
-    return "unlocked";
-  };
-
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  if (!prompts) {
-    toast.error("text information not available now now");
-  }
-
   useEffect(() => {
-    const assessment = getAssessmentHistory(taskTypeUUID || "");
+    const assessment = {
+      isStarted: false,
+      isCompleted: false,
+    };
 
     if (assessment && assessment.isStarted && !assessment.isCompleted) {
       setShowResumeAlert(true);
@@ -137,44 +135,41 @@ const PracticePage = () => {
 
         {/* Task List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {prompts.reverse().map((prompt) => {
-            const status = getTaskStatus(prompt);
-
+          {promptsList?.map((prompt) => {
+            const status = prompt.status;
             return (
               <Card
-                key={prompt.promptUUID}
+                key={prompt.promptUuid}
                 className={cn(
                   `p-4 cursor-pointer transition-all hover:shadow-md `,
-                  prompt.promptUUID == taskTypeUUID ? "!border-gray-700" : "",
-                  status === "completed"
-                    ? "bg-success-light border-success"
-                    : status === "unlocked"
-                    ? "hover:bg-accent"
-                    : "opacity-60 cursor-not-allowed",
+                  // prompt.promptUuid == taskTypeUUID ? "!border-gray-700" : "",
+                  // status === EVALUATION_STATUS.COMPLETED
+                  //   ? "bg-success-light border-success"
+                  //   : status === EVALUATION_STATUS.IN_PROGRESS
+                  //   ? "hover:bg-accent"
+                  //   : "opacity-60 cursor-not-allowed",
                   isTimeRunning ? "opacity-60 cursor-not-allowed" : ""
                 )}
                 onClick={() => {
-                  if (status !== "locked" && !isTimeRunning) {
-                    if (prompt.isCompleted) {
-                      redirect(`/test/${testType}/${prompt.promptUUID}/result`);
-                    } else {
-                      redirect(`/test/${testType}/${prompt.promptUUID}`);
-                    }
+                  if (status === EVALUATION_STATUS.COMPLETED) {
+                    redirect(`/test/${testType}/${prompt.promptUuid}/result`);
+                  } else {
+                    redirect(`/test/${testType}/${prompt.promptUuid}`);
+                  }
 
-                    // Close sidebar on mobile when task is selected
-                    if (window.innerWidth < 1024) {
-                      setSidebarOpen(false);
-                    }
+                  // Close sidebar on mobile when task is selected
+                  if (window.innerWidth < 1024) {
+                    setSidebarOpen(false);
                   }
                 }}
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-1">
-                    {status === "completed" ? (
+                    {status === EVALUATION_STATUS.COMPLETED ? (
                       <div className="w-6 h-6 bg-success rounded-full flex items-center justify-center">
                         <Check className="w-4 h-4 text-success-foreground" />
                       </div>
-                    ) : status === "unlocked" ? (
+                    ) : status !== EVALUATION_STATUS.IN_PROGRESS ? (
                       <div className="w-6 h-6 brand-green-gradient rounded-full flex items-center justify-center">
                         <Play className="w-3 h-3 text-primary-foreground fill-current" />
                       </div>
@@ -187,30 +182,32 @@ const PracticePage = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-sm truncate">
-                        {prompt.promptName}
-                      </h3>
+                      <h4 className="font-medium text-sm truncate">
+                        {prompt.name}
+                      </h4>
                       <Badge
                         variant={
-                          status === "completed" ? "default" : "secondary"
+                          status === EVALUATION_STATUS.COMPLETED
+                            ? "default"
+                            : "secondary"
                         }
                         className={
-                          status === "completed"
+                          status === EVALUATION_STATUS.COMPLETED
                             ? "bg-green-500 text-white"
-                            : status === "unlocked"
+                            : status !== EVALUATION_STATUS.CANCELLED
                             ? "bg-blue-500 text-primary-foreground"
                             : ""
                         }
                       >
-                        {status === "completed"
+                        {status === EVALUATION_STATUS.COMPLETED
                           ? "Done"
-                          : status === "unlocked"
+                          : status !== EVALUATION_STATUS.CANCELLED
                           ? "Ready"
                           : "Locked"}
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {prompt.promptShortDescription}
+                      {prompt.shortDescription}
                     </p>
                   </div>
                 </div>
@@ -250,7 +247,7 @@ const PracticePage = () => {
                     variant="gradient-green"
                     onClick={() => {
                       if (taskTypeUUID) {
-                        restartByPromptId(taskTypeUUID);
+                        // restartByPromptId(taskTypeUUID);
                         setShowResumeAlert(false);
                       }
                     }}
@@ -261,11 +258,11 @@ const PracticePage = () => {
                     variant="outline"
                     onClick={() => {
                       if (taskTypeUUID) {
-                        assignQuestionToPrompt({
-                          promptUUID: taskTypeUUID,
-                          random: true,
-                          type: testType || "speaking",
-                        });
+                        // assignQuestionToPrompt({
+                        //   promptUUID: taskTypeUUID,
+                        //   random: true,
+                        //   type: testType || "speaking",
+                        // });
                         setShowResumeAlert(false);
                       }
                     }}
@@ -285,7 +282,7 @@ const PracticePage = () => {
               default:
                 return (
                   <TestInterface
-                    assessmentPromptUUID={taskTypeUUID || ""}
+                    assessment={selectedPrompt}
                     type={testType || "speaking"}
                   />
                 );

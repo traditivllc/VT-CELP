@@ -6,6 +6,7 @@ import { toast } from "sonner";
 const api = axios.create({
   baseURL: getEnv("API_BASE_URL", "https://api.URLNOTSET.com"),
   timeout: 10000,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

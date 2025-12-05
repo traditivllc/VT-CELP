@@ -3,7 +3,7 @@ import type {
   EvaluationResponse,
   TAssessmentType,
   TestType,
-} from "@/types/AssessmentTypes.types";
+} from "@/types/AssessmentTypes.type";
 import { createContext } from "react";
 
 interface AssessmentContextProps {
@@ -43,7 +43,6 @@ interface AssessmentContextProps {
 
   taskTypes: TestType[];
 
-  getPromptsByType: (typeSlug: TestType["slug"]) => AssessmentHistory[];
   setIsStarted: (promptId: AssessmentHistory["promptUUID"]) => void;
 
   assignQuestionToPrompt: (prop: {

@@ -3,17 +3,17 @@ import type {
   EvaluationResponse,
   Language,
   PromptQuestion,
+  PromptRandQuestion,
   TAssessmentType,
   TestPrompt,
   TestType,
-} from "@/types/AssessmentTypes.types";
+} from "@/types/AssessmentTypes.type";
 
 import api from "@/lib/axios";
 import { jsonSafeParse } from "@/lib/utils";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AssessmentContext } from "./Assessment.context";
-import axios from "axios";
 
 export interface IStartAssessmentWithAPI {
   selectedPrompt?: TestPrompt;
@@ -119,59 +119,59 @@ export const AssessmentHistoryProvider: React.FC<{
     }
   }, [isLoading]);
 
-  useEffect(() => {
-    const fetchTypes = async () => {
-      setIsLoading(true);
-      try {
-        const response = await api.get<TestType[]>("celpip/get-types");
-        const responseData = response.data;
-        if (!responseData || responseData.length === 0) {
-          throw new Error("No task types found");
-        }
-        setTaskTypes(responseData);
-        const historyOnLS = getFromLocalStorage();
+  // useEffect(() => {
+  //   const fetchTypes = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       const response = await api.get<TestType[]>("celpip/get-types");
+  //       const responseData = response.data;
+  //       if (!responseData || responseData.length === 0) {
+  //         throw new Error("No task types found");
+  //       }
+  //       setTaskTypes(responseData);
+  //       const historyOnLS = getFromLocalStorage();
 
-        responseData.forEach((assessmentTypes) => {
-          assessmentTypes.testPrompts.forEach((pmt) => {
-            const exist = historyOnLS?.find(
-              (hist) => hist.promptUUID == pmt.promptUuid
-            );
-            if (exist) {
-              return;
-            }
+  //       responseData.forEach((assessmentTypes) => {
+  //         assessmentTypes.testPrompts.forEach((pmt) => {
+  //           const exist = historyOnLS?.find(
+  //             (hist) => hist.promptUUID == pmt.promptUuid
+  //           );
+  //           if (exist) {
+  //             return;
+  //           }
 
-            addToHistory({
-              assessmentType: assessmentTypes.slug,
-              promptUUID: pmt.promptUuid,
-              promptName: pmt.name,
-              promptNamePrefix: pmt.namePrefix,
-              isCompleted: false,
-              isStarted: false,
-              promptShortDescription: pmt.shortDescription,
-              preparationTime: pmt.preparationTime,
-              responseTime: pmt.responseTime,
+  //           addToHistory({
+  //             assessmentType: assessmentTypes.slug,
+  //             promptUUID: pmt.promptUuid,
+  //             promptName: pmt.name,
+  //             promptNamePrefix: pmt.namePrefix,
+  //             isCompleted: false,
+  //             isStarted: false,
+  //             promptShortDescription: pmt.shortDescription,
+  //             preparationTime: pmt.preparationTime,
+  //             responseTime: pmt.responseTime,
 
-              questionUUID: "",
-              questionName: "",
-              questionImagePath: "",
-              isCompletedOnce: false,
-              languageId: 1, // default to english
-              targetingScore: "10",
-            });
-          });
-        });
-      } catch (error) {
-        if (error instanceof axios.AxiosError) {
-          setError(error.message);
-        }
-        console.error("Error fetching task types:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  //             questionUUID: "",
+  //             questionName: "",
+  //             questionImagePath: "",
+  //             isCompletedOnce: false,
+  //             languageId: 1, // default to english
+  //             targetingScore: "10",
+  //           });
+  //         });
+  //       });
+  //     } catch (error) {
+  //       if (error instanceof axios.AxiosError) {
+  //         setError(error.message);
+  //       }
+  //       console.error("Error fetching task types:", error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchTypes();
-  }, []);
+  //   fetchTypes();
+  // }, []);
 
   const startAssessment = (
     assessment: Pick<
@@ -273,16 +273,6 @@ export const AssessmentHistoryProvider: React.FC<{
     });
   };
 
-  const getPromptsByType = (
-    typeSlug: TestType["slug"]
-  ): AssessmentHistory[] => {
-    const prompts = history?.filter((type) => type.assessmentType === typeSlug);
-    if (prompts) {
-      return prompts;
-    }
-    return [];
-  };
-
   const setIsStarted = (promptId: AssessmentHistory["promptUUID"]) => {
     setHistory((prev) => {
       if (!prev) return null;
@@ -294,65 +284,65 @@ export const AssessmentHistoryProvider: React.FC<{
     });
   };
 
-  async function assignQuestionToPrompt({
-    type,
-    random = false,
-    clearResults = false,
-    promptUUID,
-  }: {
-    promptUUID: AssessmentHistory["promptUUID"];
-    type: TAssessmentType;
-    random?: boolean;
-    clearResults?: boolean;
-  }) {
-    if (isLoading) {
-      toast.error("Please wait, loading in progress.");
-      return;
-    }
+  // const assignQuestionToPrompt = useCallback(
+  //   async ({
+  //     type,
+  //     random = false,
+  //     clearResults = false,
+  //     promptUUID,
+  //   }: {
+  //     promptUUID: AssessmentHistory["promptUUID"];
+  //     type: TAssessmentType;
+  //     random?: boolean;
+  //     clearResults?: boolean;
+  //   }) => {
+  //     if (isLoading) {
+  //       toast.error("Please wait, loading in progress.");
+  //       return;
+  //     }
 
-    const prompts = getPromptsByType(type || "speaking");
+  //     if (!random) {
+  //       const existingAssessment = prompts.find(
+  //         (p) => p.promptUUID === promptUUID
+  //       );
 
-    if (!random) {
-      const existingAssessment = prompts.find(
-        (p) => p.promptUUID === promptUUID
-      );
+  //       if (existingAssessment && existingAssessment.questionUUID) {
+  //         startAssessment(
+  //           {
+  //             promptUUID: promptUUID,
+  //             targetingScore: "10",
+  //             questionUUID: existingAssessment.questionUUID,
+  //             questionName: existingAssessment.questionName,
+  //             questionImagePath: existingAssessment.questionImagePath,
+  //           },
+  //           clearResults
+  //         );
+  //         return;
+  //       }
+  //     }
 
-      if (existingAssessment && existingAssessment.questionUUID) {
-        startAssessment(
-          {
-            promptUUID: promptUUID,
-            targetingScore: "10",
-            questionUUID: existingAssessment.questionUUID,
-            questionName: existingAssessment.questionName,
-            questionImagePath: existingAssessment.questionImagePath,
-          },
-          clearResults
-        );
-        return;
-      }
-    }
+  //     setIsLoading(true);
+  //     try {
+  //       const response = await api.get<PromptQuestion>(
+  //         `/celpip/prompts-questions/${promptUUID}/1` // 1 as english.
+  //       );
+  //       const dataToStart = {
+  //         promptUUID: promptUUID,
+  //         targetingScore: "10",
+  //         questionUUID: response.data.uuid,
+  //         questionName: response.data.name,
+  //         questionImagePath: response.data.imagePath,
+  //       };
 
-    setIsLoading(true);
-
-    try {
-      const response = await api.get<PromptQuestion>(
-        `/celpip/prompts-questions/${promptUUID}/1` // 1 as english.
-      );
-      const dataToStart = {
-        promptUUID: promptUUID,
-        targetingScore: "10",
-        questionUUID: response.data.uuid,
-        questionName: response.data.name,
-        questionImagePath: response.data.imagePath,
-      };
-
-      startAssessment(dataToStart, clearResults);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  //       startAssessment(dataToStart, clearResults);
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   },
+  //   []
+  // );
 
   const hasNextTask = (
     promptUUID: string,
@@ -399,11 +389,7 @@ export const AssessmentHistoryProvider: React.FC<{
 
         taskTypes,
 
-        getPromptsByType,
-
         setIsStarted,
-
-        assignQuestionToPrompt,
 
         hasNextTask,
         startNext,

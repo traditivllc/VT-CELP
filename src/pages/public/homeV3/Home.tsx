@@ -1,12 +1,16 @@
 import { useState } from "react";
-
-import AudioRecorder from "./comp/AudioRecorder";
-import WritingEditor from "./comp/WritingEditor";
-import { PlanModal, BoostModal } from "./comp/Modals";
-import ScoreRing from "./comp/ScoreRing";
+import AudioRecorder from "./components/AudioRecorder";
+import WritingEditor from "./components/WritingEditor";
+import { PlanModal } from "./components/Modals";
+import ScoreRing from "./components/ScoreRing";
+import Modal from "@/components/ui/modal";
+import { Modal as BootstrapModal } from "bootstrap";
+import LoginForm from "@/components/LoginForm";
+import { useAuth } from "@/comman/contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 // --- DESKTOP COMPONENT ---
-const DesktopRoot = ({ userName }: { userName: string | null }) => {
+const DesktopRoot = () => {
   const handleExportCsv = () => {
     // Simple CSV Export logic
     const data = [
@@ -24,6 +28,8 @@ const DesktopRoot = ({ userName }: { userName: string | null }) => {
     link.click();
   };
 
+  const { currentCustomer } = useAuth();
+
   return (
     <div id="desktop-root">
       <header className="app-header">
@@ -31,10 +37,10 @@ const DesktopRoot = ({ userName }: { userName: string | null }) => {
           <div className="d-flex align-items-center gap-3">
             <div>
               <div className="text-secondary small" id="welcomeText">
-                {userName ? (
+                {currentCustomer ? (
                   <>
                     <span className="text-success fw-semibold">
-                      Welcome, {userName}!
+                      Welcome, {currentCustomer.firstName}!
                     </span>{" "}
                     Your CELPIP AI account is ready.
                   </>
@@ -59,7 +65,7 @@ const DesktopRoot = ({ userName }: { userName: string | null }) => {
             <button
               className="btn cta-btn btn-sm"
               data-bs-toggle="modal"
-              data-bs-target="#boostModal"
+              data-bs-target="#loginModal"
             >
               <i className="bi bi-rocket-takeoff"></i> Boost Plan
             </button>
@@ -249,10 +255,17 @@ const DesktopRoot = ({ userName }: { userName: string | null }) => {
                         {/* More Accordion Items omitted for brevity but follow same structure */}
                       </div>
                       <hr />
-                      <AudioRecorder
+                      <Link
+                        to="/test/speaking"
+                        className="btn brand-btn w-100 mb-2 text-white"
+                      >
+                        <i className="bi bi-mic-fill"></i> Start New Speaking
+                        Task
+                      </Link>
+                      {/* <AudioRecorder
                         id="deskRecorderPanel"
                         prompt="Describe a difficult decision you had to make."
-                      />
+                      /> */}
                     </div>
                   </div>
                 </div>
@@ -691,8 +704,6 @@ const MobileRoot = () => {
 
 // --- APP ROOT ---
 const App = () => {
-  const [userName, setUserName] = useState<string | null>(null);
-
   return (
     <>
       {/* Shared Backgrounds */}
@@ -709,15 +720,17 @@ const App = () => {
         loading="lazy"
       />
 
-      <DesktopRoot userName={userName} />
+      <DesktopRoot />
       <MobileRoot />
 
       <PlanModal />
-      <BoostModal
-        onLogin={(name) => {
-          setUserName(name || "Guest User");
-        }}
-      />
+      <Modal title="Boost Plan Sign-In" id={"loginModal"}>
+        <LoginForm
+          onLogin={() => {
+            BootstrapModal.getInstance("#loginModal")?.hide();
+          }}
+        />
+      </Modal>
     </>
   );
 };

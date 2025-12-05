@@ -3,7 +3,7 @@ import { PenTool, RefreshCcw, SquarePause } from "lucide-react";
 import Timer from "../Timer";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAssessment } from "@/context/assessmentV2/useAssessment";
-import type { EvaluationResponse } from "@/types/AssessmentTypes.types";
+import type { EvaluationResponse } from "@/types/AssessmentTypes.type";
 import api from "@/lib/axios";
 import { useNavigate } from "react-router-dom";
 

@@ -1,11 +1,10 @@
-"use client";
-import { useAssessment } from "@/context/assessmentV2/useAssessment";
 import { cn } from "@/lib/utils";
-import type { TestType } from "@/types/AssessmentTypes.types";
+import type { TestType } from "@/types/AssessmentTypes.type";
 import { Mic, PenTool } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Link } from "react-router-dom";
+import { useAssessment } from "@/context/assessmentV2/useAssessment";
 
 export default function TestingTypeCards() {
   // Fetch task types from API

@@ -1,13 +1,21 @@
-import { useAssessment } from "@/context/assessmentV2/useAssessment";
-import type { TestType } from "@/types/AssessmentTypes.types";
+import { getPromptsByType } from "@/services/celpip-services";
+import type { TestPrompt, TestType } from "@/types/AssessmentTypes.type";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 export default function TaskListPage() {
   const { testTypeSlug } = useParams<{ testTypeSlug: TestType["slug"] }>();
+  const [typeList, setTypeList] = useState<TestPrompt[]>([]);
 
-  const { getPromptsByType } = useAssessment();
+  useEffect(() => {
+    if (testTypeSlug === undefined) return;
+    const fetchPrompts = async () => {
+      const prompts = await getPromptsByType(testTypeSlug);
+      setTypeList(prompts);
+    };
+    fetchPrompts();
+  }, [testTypeSlug]);
 
-  const typeList = getPromptsByType(testTypeSlug || "speaking");
   return (
     <main>
       <section>
@@ -27,8 +35,8 @@ export default function TaskListPage() {
           <div className="space-y-3">
             {typeList.reverse().map((part, index) => (
               <Link
-                to={`/test/${testTypeSlug}/${part.promptUUID}`}
-                key={part.promptNamePrefix}
+                to={`/test/${testTypeSlug}/${part.promptUuid}`}
+                key={part.namePrefix}
                 className="flex items-center p-4 border border-gray-200 bg-white rounded-lg hover:bg-gray-50 hover:border-green-primary hover:scale-102 transition-all cursor-pointer"
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-semibold rounded-full mr-4">
@@ -37,9 +45,9 @@ export default function TaskListPage() {
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-gray-900">
                     <span className="text-gray-400 border-e border-gray-200 pr-2 inline-block me-2">
-                      {part.promptNamePrefix}
+                      {part.namePrefix}
                     </span>
-                    {part.promptName}
+                    {part.name}
                   </h3>
                 </div>
                 <div className="text-gray-400">

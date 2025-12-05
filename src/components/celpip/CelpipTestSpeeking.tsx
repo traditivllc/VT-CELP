@@ -1,36 +1,45 @@
 import { Button } from "@/components/ui/button";
-import { Mic, RefreshCcw, SquarePause } from "lucide-react";
-import Timer from "../Timer";
-import AudioPlayerButton from "../AudioPlayerButton";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useAssessment } from "@/context/assessmentV2/useAssessment";
-import type { EvaluationResponse } from "@/types/AssessmentTypes.types";
-import { getSupportedMimeType } from "@/lib/utils";
+import { useEvaluation } from "@/context/assessmentV3/Evaluation.provider";
 import api from "@/lib/axios";
+import { buildUrl, getSupportedMimeType } from "@/lib/utils";
+import type {
+  EvaluationResponse,
+  EvaluationResult,
+  PromptsWithQuestionAndEvaluation,
+} from "@/types/AssessmentTypes.type";
+import { Mic, RefreshCcw, SquarePause } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AudioPlayerButton from "../AudioPlayerButton";
+import Timer from "../Timer";
+import { API_ENDPOINTS } from "@/types/Api.type";
+import { toast } from "sonner";
 
 export default function CelpipTestDashboard({
-  assessmentPromptUUID,
+  assessment,
 }: {
-  assessmentPromptUUID: string;
+  assessment?: PromptsWithQuestionAndEvaluation | null;
 }) {
   const [phase, setPhase] = useState<
     "instruction" | "recording" | "playback" | "results"
   >("instruction");
 
+  const currentAssessmentRef = useRef<EvaluationResult | null>(null);
+  const isTimeRunningRef = useRef<boolean>(false);
+
   const redirect = useNavigate();
+  const { startAssessment, stopAssessment, isTimeRunning, currentAssessment } =
+    useEvaluation();
 
-  const { getAssessmentHistory, isTimeRunning, setIsTimeRunning } =
-    useAssessment();
+  if (currentAssessment) {
+    currentAssessmentRef.current = currentAssessment;
+    isTimeRunningRef.current = isTimeRunning;
+  }
 
-  const runningAssessment = getAssessmentHistory(assessmentPromptUUID);
+  const promptResponseTime = Number(assessment?.responseTime) || 60;
 
-  // Modal and recording state
-  const { setAsCompleted, setIsStarted } = useAssessment();
+  const [responseTime, setResponseTime] = useState<number>(promptResponseTime);
 
-  const [responseTime, setResponseTime] = useState<number>(
-    runningAssessment?.responseTime || 60
-  );
   const [recordedTime, setRecordedTime] = useState(0);
 
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -44,9 +53,13 @@ export default function CelpipTestDashboard({
 
   // Start recording
   const startRecording = useCallback(async () => {
-    setIsStarted(runningAssessment?.promptUUID || "");
+    await startAssessment({
+      promptUUID: assessment?.promptUuid || "",
+      questionUUID: assessment?.question.uuid || "",
+    });
+
     setAudioBlob(null);
-    setResponseTime(runningAssessment?.responseTime || 35);
+    setResponseTime(promptResponseTime);
 
     audioChunks.current = [];
 
@@ -54,6 +67,7 @@ export default function CelpipTestDashboard({
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
+      isTimeRunningRef.current = false;
     }
 
     try {
@@ -69,7 +83,6 @@ export default function CelpipTestDashboard({
       recorder.current.onstop = () => {
         const blob = new Blob(audioChunks.current, { type: mimeType });
         setAudioBlob(blob);
-        setIsTimeRunning(false);
         stream.current?.getTracks().forEach((track) => track.stop());
 
         // Get duration from the actual audio blob
@@ -83,18 +96,14 @@ export default function CelpipTestDashboard({
       };
       recorder.current.start();
 
-      setIsTimeRunning(true);
+      stopAssessment();
       setPhase("recording");
       // Start countdown interval only once
     } catch {
       alert("Microphone access denied or error starting recording.");
-      setIsTimeRunning(false);
+      stopAssessment();
     }
-  }, [
-    runningAssessment?.responseTime,
-    runningAssessment?.promptUUID,
-    setIsStarted,
-  ]);
+  }, [promptResponseTime, stopAssessment]);
 
   const reset = useCallback(() => {
     const currentRecorder = recorder.current;
@@ -106,8 +115,7 @@ export default function CelpipTestDashboard({
     }
 
     setPhase("instruction");
-    setIsTimeRunning(false);
-    setResponseTime(runningAssessment?.responseTime || 126);
+    stopAssessment();
 
     setAudioBlob(null);
     setIsSubmitting(false);
@@ -116,7 +124,7 @@ export default function CelpipTestDashboard({
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, [runningAssessment?.responseTime]);
+  }, [stopAssessment]);
 
   useEffect(() => {
     if (recorder.current && isTimeRunning) {
@@ -151,8 +159,8 @@ export default function CelpipTestDashboard({
 
   const retakeRecording = () => {
     setAudioBlob(null);
-    setResponseTime(runningAssessment?.responseTime || 126);
-    setIsTimeRunning(false);
+    setResponseTime(promptResponseTime);
+    // setIsTimeRunning(false);
 
     // Clear any previous timer
     if (timerRef.current) {
@@ -165,15 +173,25 @@ export default function CelpipTestDashboard({
   // Submit audio
   const submitAudio = async () => {
     if (!audioBlob) return;
+    if (!currentAssessmentRef.current) {
+      toast.error("Something went wrong. unable to submit.");
+      return;
+    }
     setIsSubmitting(true);
 
     // Use the original recorded format (webm)
     const formData = new FormData();
     formData.append("audio", audioBlob, "recording.webm");
 
+    const promptUUID = assessment?.promptUuid;
+
     try {
       const res = await api.postForm<EvaluationResponse>(
-        `/celpip?promptUUID=${runningAssessment?.promptUUID}&questionUUID=${runningAssessment?.questionUUID}&targetingScore=${runningAssessment?.targetingScore}`,
+        `${buildUrl(API_ENDPOINTS.CELPIP_SUBMIT_EVALUATION, {
+          type: "speaking",
+        })}?evaluationUUID=${
+          currentAssessmentRef.current.evaluationUuid
+        }&targetingScore=12`,
         formData,
         {
           timeout: 60000, // 60 seconds timeout
@@ -183,9 +201,9 @@ export default function CelpipTestDashboard({
       console.log("Response from server:", res.data);
 
       // Save to history after successful test
-      if (runningAssessment?.promptUUID && res.data) {
-        setAsCompleted(runningAssessment?.promptUUID, res.data);
-        redirect(`/test/speaking/${runningAssessment?.promptUUID}/result`);
+      if (promptUUID && res.data) {
+        stopAssessment();
+        redirect(`/test/speaking/${promptUUID}/result`);
       }
     } catch (err) {
       console.error("Error submitting audio:", err);
@@ -198,7 +216,7 @@ export default function CelpipTestDashboard({
     setPhase("playback");
   }, [reset]);
 
-  if (!runningAssessment) {
+  if (!assessment) {
     return null;
   }
 
@@ -230,7 +248,7 @@ export default function CelpipTestDashboard({
             <Timer
               initialTime={responseTime}
               onTimeUp={() => handleStop()}
-              isRunning={isTimeRunning}
+              isRunning={isTimeRunningRef.current}
               inline
             />{" "}
             seconds

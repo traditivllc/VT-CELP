@@ -1,53 +1,26 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader } from "@/components/ui/card";
-import { useAssessment } from "@/context/assessmentV2/useAssessment";
 import { getEnv } from "@/lib/utils";
-import type {
-  AssessmentHistory,
-  TAssessmentType,
-} from "@/types/AssessmentTypes.types";
 import { UsersRound } from "lucide-react";
 import CelpipTestSpeaking from "./celpip/CelpipTestSpeeking";
 import Image from "./Images";
 import Timer from "./Timer";
 import { Alert, AlertDescription } from "./ui/alert";
-
-import { useEffect, useState } from "react";
-import CelpipWritingTest from "./celpip/CelpipTestWriting";
+import type { PromptsWithQuestionAndEvaluation } from "@/types/AssessmentTypes.type";
+import { useEvaluation } from "@/context/assessmentV3/Evaluation.provider";
 
 const TestInterface = ({
-  assessmentPromptUUID,
+  assessment,
   type,
 }: {
-  assessmentPromptUUID: string;
-  type: TAssessmentType;
+  assessment?: PromptsWithQuestionAndEvaluation | null;
+  type: string;
 }) => {
-  const [currentAssessment, setCurrentAssessment] =
-    useState<AssessmentHistory | null>(null);
-  const { assignQuestionToPrompt, isLoading } = useAssessment();
-
   // Modal and recording state
-  const { getPromptsByType, getAssessmentHistory, isTimeRunning } =
-    useAssessment();
 
-  useEffect(() => {
-    assignQuestionToPrompt({
-      promptUUID: assessmentPromptUUID,
-      type: type,
-      random: true,
-    });
-    const assessment = getAssessmentHistory(assessmentPromptUUID);
+  const { isTimeRunning } = useEvaluation();
 
-    setCurrentAssessment(assessment);
-  }, [isLoading, assessmentPromptUUID]);
-
-  const allPrompts = getPromptsByType(type);
-
-  const currentPromptIndex = allPrompts.findIndex(
-    (p) => p.promptUUID === assessmentPromptUUID
-  );
-
-  if (!currentAssessment) {
+  if (!assessment) {
     return null;
   }
 
@@ -61,9 +34,9 @@ const TestInterface = ({
             <CardHeader className="border-b border-slate-200 border-solid py-4 flex items-center flex-wrap justify-between mb-0 !p-4">
               <div className="">
                 <span className="font-bold mb-2 inline-block">
-                  {currentAssessment?.promptNamePrefix}
+                  {assessment.namePrefix}
                   {": "}
-                  {currentAssessment?.promptName}
+                  {assessment.name}
                 </span>
 
                 <div>
@@ -72,8 +45,7 @@ const TestInterface = ({
                     {(() => {
                       const now = new Date();
                       return Math.floor(
-                        Number(now.getHours() + "" + now.getMinutes()) /
-                          (currentPromptIndex + 2)
+                        Number(now.getHours() + "" + now.getMinutes()) / +2
                       );
                     })()}{" "}
                     Submitted today
@@ -84,7 +56,7 @@ const TestInterface = ({
                 <Alert variant={"info"} className="!py-2 px-8">
                   <AlertDescription className="flex items-center gap-2">
                     <Timer
-                      initialTime={currentAssessment.responseTime}
+                      initialTime={assessment.responseTime}
                       isRunning={isTimeRunning}
                     />
                   </AlertDescription>
@@ -95,16 +67,16 @@ const TestInterface = ({
               <div className="text-center md:text-start px-4 md:px-8 py-10 border-b md:border-b-0 md:border-e border-solid border-slate-200">
                 <h2 className="text-2xl font-semibold mb-6">Task Prompt</h2>
                 <Badge className="mb-4">
-                  Response time: {currentAssessment.responseTime}
+                  Response time: {assessment.responseTime}
                 </Badge>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  {currentAssessment?.questionName}
+                  {assessment?.question.name}
                 </p>
-                {currentAssessment?.questionImagePath && (
+                {assessment?.question?.imagePath && (
                   <Image
                     src={
                       getEnv("BASE_ASSETS", "") +
-                      currentAssessment?.questionImagePath
+                      assessment?.question?.imagePath
                     }
                   ></Image>
                 )}
@@ -114,17 +86,13 @@ const TestInterface = ({
                 {(() => {
                   switch (type) {
                     case "speaking":
-                      return (
-                        <CelpipTestSpeaking
-                          assessmentPromptUUID={assessmentPromptUUID}
-                        />
-                      );
-                    case "writing":
-                      return (
-                        <CelpipWritingTest
-                          assessmentPromptUUID={assessmentPromptUUID}
-                        />
-                      );
+                      return <CelpipTestSpeaking assessment={assessment} />;
+                    // case "writing":
+                    //   return (
+                    //     <CelpipWritingTest
+                    //       assessmentPromptUUID={assessmentPromptUUID}
+                    //     />
+                    //   );
                     default:
                       return null;
                   }
