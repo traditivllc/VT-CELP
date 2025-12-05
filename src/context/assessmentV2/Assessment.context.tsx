@@ -45,13 +45,6 @@ interface AssessmentContextProps {
 
   setIsStarted: (promptId: AssessmentHistory["promptUUID"]) => void;
 
-  assignQuestionToPrompt: (prop: {
-    type: TAssessmentType;
-    promptUUID: AssessmentHistory["promptUUID"];
-    random?: boolean;
-    clearResults?: boolean;
-  }) => void;
-
   hasNextTask: (
     promptUUID: string,
     type: TAssessmentType

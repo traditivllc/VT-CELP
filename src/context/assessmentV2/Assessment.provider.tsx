@@ -2,18 +2,16 @@ import type {
   AssessmentHistory,
   EvaluationResponse,
   Language,
-  PromptQuestion,
-  PromptRandQuestion,
-  TAssessmentType,
   TestPrompt,
   TestType,
 } from "@/types/AssessmentTypes.type";
 
-import api from "@/lib/axios";
 import { jsonSafeParse } from "@/lib/utils";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AssessmentContext } from "./Assessment.context";
+import axios from "axios";
+import api from "@/lib/axios";
 
 export interface IStartAssessmentWithAPI {
   selectedPrompt?: TestPrompt;
@@ -119,59 +117,29 @@ export const AssessmentHistoryProvider: React.FC<{
     }
   }, [isLoading]);
 
-  // useEffect(() => {
-  //   const fetchTypes = async () => {
-  //     setIsLoading(true);
-  //     try {
-  //       const response = await api.get<TestType[]>("celpip/get-types");
-  //       const responseData = response.data;
-  //       if (!responseData || responseData.length === 0) {
-  //         throw new Error("No task types found");
-  //       }
-  //       setTaskTypes(responseData);
-  //       const historyOnLS = getFromLocalStorage();
+  useEffect(() => {
+    const fetchTypes = async () => {
+      setIsLoading(true);
+      try {
+        const response = await api.get<TestType[]>("celpip/get-types");
+        const responseData = response.data;
+        if (!responseData || responseData.length === 0) {
+          throw new Error("No task types found");
+        }
+        setTaskTypes(responseData);
+        // const historyOnLS = getFromLocalStorage();
+      } catch (error) {
+        if (error instanceof axios.AxiosError) {
+          setError(error.message);
+        }
+        console.error("Error fetching task types:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  //       responseData.forEach((assessmentTypes) => {
-  //         assessmentTypes.testPrompts.forEach((pmt) => {
-  //           const exist = historyOnLS?.find(
-  //             (hist) => hist.promptUUID == pmt.promptUuid
-  //           );
-  //           if (exist) {
-  //             return;
-  //           }
-
-  //           addToHistory({
-  //             assessmentType: assessmentTypes.slug,
-  //             promptUUID: pmt.promptUuid,
-  //             promptName: pmt.name,
-  //             promptNamePrefix: pmt.namePrefix,
-  //             isCompleted: false,
-  //             isStarted: false,
-  //             promptShortDescription: pmt.shortDescription,
-  //             preparationTime: pmt.preparationTime,
-  //             responseTime: pmt.responseTime,
-
-  //             questionUUID: "",
-  //             questionName: "",
-  //             questionImagePath: "",
-  //             isCompletedOnce: false,
-  //             languageId: 1, // default to english
-  //             targetingScore: "10",
-  //           });
-  //         });
-  //       });
-  //     } catch (error) {
-  //       if (error instanceof axios.AxiosError) {
-  //         setError(error.message);
-  //       }
-  //       console.error("Error fetching task types:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchTypes();
-  // }, []);
+    fetchTypes();
+  }, []);
 
   const startAssessment = (
     assessment: Pick<
@@ -359,11 +327,6 @@ export const AssessmentHistoryProvider: React.FC<{
   const startNext = (promptUUID: string, type: TestType["slug"]) => {
     const next = hasNextTask(promptUUID, type);
     if (next) {
-      assignQuestionToPrompt({
-        promptUUID: next.promptUUID,
-        random: true,
-        type: next.assessmentType,
-      });
       return;
     }
   };

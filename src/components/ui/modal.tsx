@@ -14,16 +14,16 @@ export default function Modal({
   const theModal = useRef<BootstrapModal | null>(null);
 
   useEffect(() => {
-    // theModal.current = new BootstrapModal("#boostModal");
-    // addEventListener("show.bs.modal", () => {
-    //   theModal.current?.show();
-    // });
-    // return () => {
-    //   onClose?.();
-    //   removeEventListener("show.bs.modal", () => {
-    //     theModal.current?.show();
-    //   });
-    // };
+    theModal.current = new BootstrapModal("#boostModal");
+    addEventListener("show.bs.modal", () => {
+      theModal.current?.show();
+    });
+    return () => {
+      onClose?.();
+      removeEventListener("show.bs.modal", () => {
+        theModal.current?.show();
+      });
+    };
   }, []);
 
   return (
