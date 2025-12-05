@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import type { EvaluationResponse } from "@/types/AssessmentTypes.types";
+import type { EvaluationResponse } from "@/types/AssessmentTypes.type";
 import Image from "./Images";
 
 const TestScoreBoard: React.FC<{

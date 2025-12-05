@@ -1,4 +1,4 @@
-import type { PromptRandQuestion } from "@/types/AssessmentTypes.types";
+import type { PromptRandQuestion } from "@/types/AssessmentTypes.type";
 
 export function saveScore(questionId: string | number, score: number): void {
   const existingScores = window.localStorage.getItem(`scores_${questionId}`);

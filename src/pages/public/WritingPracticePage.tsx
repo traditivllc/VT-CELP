@@ -118,9 +118,9 @@ const WritingPracticePage = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-sm truncate">
+                      <h4 className="font-medium text-sm truncate">
                         {task.title}
-                      </h3>
+                      </h4>
                       <Badge
                         variant={
                           status === "completed" ? "default" : "secondary"

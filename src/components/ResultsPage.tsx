@@ -1,13 +1,9 @@
-import { useAssessment } from "@/context/assessmentV2/useAssessment";
-import {
-  CheckCircle2,
-  ArrowRight,
-  RotateCcw,
-  Home,
-  TrendingUp,
-} from "lucide-react";
-import { Button } from "./ui/button";
+import { getEvaluationResultByPromptUUID } from "@/services/celpip-services";
+import type { EvaluationResult } from "@/types/AssessmentTypes.type";
+import { CheckCircle2, Home, RotateCcw, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
 
 interface TestResult {
   score: number;
@@ -26,7 +22,7 @@ interface TestResult {
   audioBlob?: Blob;
   completedAt: Date;
 }
-const result: TestResult = {
+const resultDummy: TestResult = {
   score: Math.floor(Math.random() * 4) + 8, // Score between 8-12
   maxScore: 12,
   feedback: {
@@ -88,14 +84,16 @@ const getScoreBand = (score: number) => {
 };
 
 export default function ResultsPage({ promptUUID }: ResultsPageProps) {
-  const { getAssessmentHistory, hasNextTask } = useAssessment();
-
   const redirect = useNavigate();
+  const [result, setResult] = useState<EvaluationResult>();
 
-  const assessment = getAssessmentHistory(promptUUID);
-  if (!assessment) return <div>No assessment data found.</div>;
+  useEffect(() => {
+    getEvaluationResultByPromptUUID(promptUUID).then((data) => {
+      setResult(data);
+    });
+  }, [promptUUID]);
 
-  const score = Number(assessment.evaluationResponse?.score);
+  const score = Number(result?.score);
   const scoreBand = getScoreBand(score);
 
   return (
@@ -110,7 +108,8 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
             Test Complete!
           </h1>
           <p className="text-gray-600">
-            Here's your detailed feedback for: {assessment.promptName}
+            Here's your detailed feedback for:{" "}
+            {result?.promptQuestion.celpTestPrompt.name}
           </p>
         </div>
 
@@ -137,33 +136,24 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
               <ScoreItem
                 label="Fluency & Coherence"
                 score={score}
-                comment={
-                  assessment?.evaluationResponse?.fluency_comment.join(", ") ||
-                  ""
-                }
+                comment={result?.fluencyComment.join(", ") || ""}
               />
               <ScoreItem
                 label="Vocabulary"
                 score={score}
-                comment={
-                  assessment?.evaluationResponse?.vocabulary_examples.join(
-                    ", "
-                  ) || ""
-                }
+                comment={result?.vocabularyExamples.join(", ") || ""}
               />
             </div>
             <div className="space-y-4">
               <ScoreItem
                 label="Summary"
                 score={score}
-                comment={
-                  assessment?.evaluationResponse?.ideal_response_summary || ""
-                }
+                comment={result?.idealResponseSummary || ""}
               />
               <ScoreItem
                 label="Tips"
                 score={score}
-                comment={assessment?.evaluationResponse?.tips.join(", ") || ""}
+                comment={result?.tips.join(", ") || ""}
               />
             </div>
           </div>
@@ -173,7 +163,7 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
               Overall Feedback
             </h3>
             <p className="text-gray-700 leading-relaxed">
-              {assessment?.evaluationResponse?.feedback.join(", ")}
+              {result?.feedback.join(", ")}
             </p>
           </div>
         </div>
@@ -187,7 +177,7 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
               Strengths
             </h3>
             <ul className="space-y-3">
-              {result.feedback.strengths.map((strength, index) => (
+              {resultDummy.feedback.strengths.map((strength, index) => (
                 <li key={index} className="flex items-start space-x-3">
                   <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                   <span className="text-gray-700">{strength}</span>
@@ -203,7 +193,7 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
               Areas for Improvement
             </h3>
             <ul className="space-y-3">
-              {result.feedback.improvements.map((improvement, index) => (
+              {resultDummy.feedback.improvements.map((improvement, index) => (
                 <li key={index} className="flex items-start space-x-3">
                   <div className="w-5 h-5 border-2 border-orange-400 rounded-full flex-shrink-0 mt-0.5" />
                   <span className="text-gray-700">{improvement}</span>
@@ -217,7 +207,9 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
         <div className="flex flex-wrap justify-center gap-4">
           <Button
             onClick={() => {
-              redirect(`/test/${assessment.assessmentType}/${promptUUID}`);
+              redirect(
+                `/test/${result?.promptQuestion.celpTestPrompt.celpTestType.slug}/${result?.promptQuestion.celpTestPrompt.promptUuid}`
+              );
             }}
             size={"lg"}
           >
@@ -225,7 +217,7 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
             <span>Try Again</span>
           </Button>
 
-          {hasNextTask(promptUUID, assessment.assessmentType) && (
+          {/* {hasNextTask(promptUUID, assessment.assessmentType) && (
             <Button
               onClick={() => {
                 const nextTask = hasNextTask(
@@ -245,7 +237,7 @@ export default function ResultsPage({ promptUUID }: ResultsPageProps) {
               <span>Next Task</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
-          )}
+          )} */}
 
           <Button
             onClick={() => {

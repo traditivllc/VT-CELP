@@ -4,7 +4,7 @@ import "swiper/css";
 import "swiper/css/effect-cards"; // Not needed in Swiper v9+
 
 import { EffectCards } from "swiper/modules";
-import type { PromptRandQuestion } from "@/types/AssessmentTypes.types";
+import type { PromptRandQuestion } from "@/types/AssessmentTypes.type";
 
 interface TestSliderProps {
   questions: PromptRandQuestion[];
