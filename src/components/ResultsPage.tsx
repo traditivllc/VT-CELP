@@ -2,7 +2,7 @@ import { getEvaluationResultByPromptUUID } from "@/services/celpip-services";
 import type { EvaluationResult } from "@/types/AssessmentTypes.type";
 import { CheckCircle2, Home, RotateCcw, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "./ui/button";
 
 interface TestResult {
@@ -86,9 +86,13 @@ const getScoreBand = (score: number) => {
 export default function ResultsPage({ promptUUID }: ResultsPageProps) {
   const redirect = useNavigate();
   const [result, setResult] = useState<EvaluationResult>();
+  const [query] = useSearchParams();
 
   useEffect(() => {
-    getEvaluationResultByPromptUUID(promptUUID).then((data) => {
+    getEvaluationResultByPromptUUID(
+      promptUUID,
+      query.get("evaluationUUID") || undefined
+    ).then((data) => {
       setResult(data);
     });
   }, [promptUUID]);

@@ -1,3 +1,5 @@
+import type { TApiResponse } from "./API-URLs.enum";
+
 export interface TestPrompt {
   id: number;
   name: string;
@@ -107,6 +109,8 @@ export interface EvaluationResult {
   updatedAt: string;
   deletedAt: string | null;
 }
+
+export type TEvaluationSubmit = TApiResponse<{ evaluationUUID: string }>;
 
 export interface EvaluationResponse {
   /**

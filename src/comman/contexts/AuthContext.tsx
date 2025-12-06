@@ -1,3 +1,4 @@
+import { FullScreenLoading } from "@/components/Loading";
 import api from "@/lib/axios";
 import { type CurrentCustomerAPIResponse } from "@/types/API-URLs.enum";
 import { API_ENDPOINTS } from "@/types/Api.type";
@@ -79,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshUserData,
       }}
     >
-      {children}
+      {loading ? <FullScreenLoading text="Verifying" /> : children}
     </AuthContext.Provider>
   );
 }

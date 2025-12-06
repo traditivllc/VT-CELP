@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import { buildUrl } from "@/lib/utils";
+import type { TFSubmitEvaluationAPI } from "@/types/API-URLs.enum";
 import { API_ENDPOINTS } from "@/types/Api.type";
 import type {
   EvaluationResult,
@@ -7,6 +8,7 @@ import type {
   PromptsWithQuestionAndEvaluation,
   TestPrompt,
   TestType,
+  TEvaluationSubmit,
 } from "@/types/AssessmentTypes.type";
 
 export async function promptsQuestions(promptUUID: string) {
@@ -39,12 +41,13 @@ export const getPromptsByTypeWithRandomQuestion = async (
 };
 
 export const getEvaluationResultByPromptUUID = async (
-  promptUUID: string
+  promptUUID: string,
+  evaluationUUID?: string
 ): Promise<EvaluationResult> => {
   const res = await api.get<EvaluationResult>(
     buildUrl(API_ENDPOINTS.CELPIP_GET_EVALUATION_RESULT_BY_PROMPT_UUID, {
       promptUUID,
-    })
+    }) + (evaluationUUID ? `?evaluationUUID=${evaluationUUID}` : "")
   );
   const prompts = res.data;
   return prompts;
@@ -63,4 +66,22 @@ export const createEvaluation = async (data: CreateEvaluationDataTypes) => {
   );
   const prompts = res.data;
   return prompts;
+};
+
+export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
+  const { type, evaluationUUID, targetingScore = 12 } = params;
+
+  if (type === "speaking") {
+    const res = await api.postForm<TEvaluationSubmit>(
+      `${buildUrl(API_ENDPOINTS.CELPIP_SUBMIT_EVALUATION, {
+        type: type,
+      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}`,
+      params.formData,
+      {
+        timeout: 60000, // 60 seconds timeout
+      }
+    );
+
+    return res.data;
+  }
 };
