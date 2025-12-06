@@ -1,13 +1,21 @@
 import {
   createEvaluation,
+  submitEvaluation,
   type CreateEvaluationDataTypes,
 } from "@/services/celpip-services";
-import type { EvaluationResult } from "@/types/AssessmentTypes.type";
+import type { TFSubmitEvaluationAPI } from "@/types/API-URLs.enum";
+import type {
+  EvaluationResult,
+  TEvaluationSubmit,
+} from "@/types/AssessmentTypes.type";
 import { createContext, useCallback, useContext, useState } from "react";
 
 interface AssessmentContextProps {
   startAssessment: (evaluationData: CreateEvaluationDataTypes) => void;
-  stopAssessment: () => void;
+  stopAssessment: (
+    params: TFSubmitEvaluationAPI
+  ) => Promise<TEvaluationSubmit | false>;
+  resetAssessment: () => void;
   currentAssessment: EvaluationResult | null;
   countDownTime: number;
   isTimeRunning: boolean;
@@ -27,9 +35,17 @@ export const EvaluationProvider: React.FC<{
     setCurrentAssessment(created);
   };
 
-  const stopAssessment = useCallback(() => {
+  const resetAssessment = useCallback(() => {
     setCurrentAssessment(null);
     setCountDownTime(0);
+  }, []);
+  const stopAssessment = useCallback(async (params: TFSubmitEvaluationAPI) => {
+    const res = await submitEvaluation(params);
+    if (!res) {
+      return false;
+    }
+    resetAssessment();
+    return res;
   }, []);
   return (
     <EvaluationContext.Provider
@@ -39,6 +55,7 @@ export const EvaluationProvider: React.FC<{
         countDownTime: countDownTime,
         isTimeRunning: countDownTime > 0,
         stopAssessment,
+        resetAssessment,
       }}
     >
       {children}
