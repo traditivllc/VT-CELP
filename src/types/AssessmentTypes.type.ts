@@ -49,7 +49,7 @@ export interface PromptRandQuestion {
   namePrefix: string;
   name: string;
   shortDescription?: string;
-  isRequiredAuth?: boolean;
+  isRequiredAuth?: boolean | number; // number 0,1
   preparationTime: number;
   responseTime: number;
   promptUuid: string;

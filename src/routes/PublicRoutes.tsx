@@ -11,11 +11,15 @@ import { EvaluationProvider } from "@/context/assessmentV3/Evaluation.provider";
 import HomeV3 from "@/pages/public/homeV3/Home";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Modal from "@/components/ui/modal";
+import LoginForm from "@/components/LoginForm";
+
+import { Modal as BootstrapModal } from "bootstrap";
 
 export default function PublicRoutes() {
   return (
-    <EvaluationProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <EvaluationProvider>
         <Routes>
           <Route index element={<HomeV3 />} />
           <Route path="test/:testTypeSlug" element={<TaskListPage />} />
@@ -31,7 +35,14 @@ export default function PublicRoutes() {
 
           <Route path="v3" element={<HomeV3 />} />
         </Routes>
-      </AuthProvider>
-    </EvaluationProvider>
+        <Modal title="Boost Plan Sign-In" id={"loginModal"}>
+          <LoginForm
+            onLogin={() => {
+              BootstrapModal.getInstance("#loginModal")?.hide();
+            }}
+          />
+        </Modal>
+      </EvaluationProvider>
+    </AuthProvider>
   );
 }

@@ -31,6 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [loading, setLoading] = useState(true);
 
+  console.log(isAuthenticated, "isAuthenticated");
+
   const login = (data: CurrentCustomerType) => {
     setIsAuthenticated(true);
     setCustomer(data);
@@ -50,8 +52,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         API_ENDPOINTS.CURRENT_CUSTOMER
       );
 
-      if (response.data) {
+      if (response.data?.customer) {
         setCustomer(response.data.customer);
+        setIsAuthenticated(true);
       }
     } catch (err) {
       toast.error("Unable to load your information. Please login again.");

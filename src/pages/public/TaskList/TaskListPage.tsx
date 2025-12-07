@@ -37,18 +37,18 @@ export default function TaskListPage() {
               <Link
                 to={`/test/${testTypeSlug}/${part.promptUuid}`}
                 key={part.namePrefix}
-                className="flex items-center p-4 border border-gray-200 bg-white rounded-lg hover:bg-gray-50 hover:border-green-primary hover:scale-102 transition-all cursor-pointer"
+                className="flex items-center p-4 border border-gray-200 bg-white rounded-lg hover:bg-gray-50 hover:border-green-primary hover:scale-102 transition-all cursor-pointer !no-underline"
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 font-semibold rounded-full mr-4">
                   {index + 1}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900">
+                  <h4 className="text-lg font-medium !text-gray-900 mb-0">
                     <span className="text-gray-400 border-e border-gray-200 pr-2 inline-block me-2">
                       {part.namePrefix}
                     </span>
                     {part.name}
-                  </h3>
+                  </h4>
                 </div>
                 <div className="text-gray-400">
                   <svg

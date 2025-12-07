@@ -257,6 +257,9 @@ body {
     position: relative;
     z-index: 1;
   }
+  .bg-brand-primary {
+    background: linear-gradient(90deg, var(--vt-g1), var(--vt-g2));
+  }
   .brand-btn {
     background: linear-gradient(90deg, var(--vt-g1), var(--vt-g2));
     color: #fff;
