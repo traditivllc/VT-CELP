@@ -1,3 +1,4 @@
+import { useAuth } from "@/comman/contexts/AuthContext";
 import {
   createEvaluation,
   submitEvaluation,
@@ -6,6 +7,7 @@ import {
 import type { TFSubmitEvaluationAPI } from "@/types/API-URLs.enum";
 import type {
   EvaluationResult,
+  PromptsWithQuestionAndEvaluation,
   TEvaluationSubmit,
 } from "@/types/AssessmentTypes.type";
 import { createContext, useCallback, useContext, useState } from "react";
@@ -19,6 +21,8 @@ interface AssessmentContextProps {
   currentAssessment: EvaluationResult | null;
   countDownTime: number;
   isTimeRunning: boolean;
+
+  isLocked: (prompt: PromptsWithQuestionAndEvaluation) => boolean;
 }
 
 export const EvaluationProvider: React.FC<{
@@ -27,6 +31,8 @@ export const EvaluationProvider: React.FC<{
   const [currentAssessment, setCurrentAssessment] =
     useState<EvaluationResult | null>(null);
   const [countDownTime, setCountDownTime] = useState<number>(0);
+
+  const { isAuthenticated } = useAuth();
 
   const startAssessment = async (data: CreateEvaluationDataTypes) => {
     const created = await createEvaluation(data);
@@ -47,6 +53,10 @@ export const EvaluationProvider: React.FC<{
     resetAssessment();
     return res;
   }, []);
+
+  const isLocked = (prompt: PromptsWithQuestionAndEvaluation) => {
+    return isAuthenticated === false && prompt.isRequiredAuth == true;
+  };
   return (
     <EvaluationContext.Provider
       value={{
@@ -56,6 +66,7 @@ export const EvaluationProvider: React.FC<{
         isTimeRunning: countDownTime > 0,
         stopAssessment,
         resetAssessment,
+        isLocked,
       }}
     >
       {children}

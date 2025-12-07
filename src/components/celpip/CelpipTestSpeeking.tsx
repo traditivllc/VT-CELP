@@ -5,7 +5,7 @@ import type {
   EvaluationResult,
   PromptsWithQuestionAndEvaluation,
 } from "@/types/AssessmentTypes.type";
-import { Mic, RefreshCcw, SquarePause } from "lucide-react";
+import { Lock, Mic, RefreshCcw, SquarePause } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -31,6 +31,7 @@ export default function CelpipTestDashboard({
     stopAssessment,
     isTimeRunning,
     currentAssessment,
+    isLocked,
   } = useEvaluation();
 
   if (currentAssessment) {
@@ -226,10 +227,21 @@ export default function CelpipTestDashboard({
             {responseTime} seconds to complete your response. Make sure your
             microphone is working and you're in a quiet environment.
           </p>
-          <Button size="lg" onClick={startRecording} variant={"gradient-green"}>
-            <Mic className="w-5 h-5 mr-2" />
-            Start Recording
-          </Button>
+          {isLocked(assessment) ? (
+            <button
+              data-bs-toggle="modal"
+              data-bs-target="#loginModal"
+              className="btn brand-btn text-white flex items-center"
+            >
+              <Lock className="w-5 h-5 mr-2 inline-block" /> Login to start
+              recording
+            </button>
+          ) : (
+            <Button size="lg" onClick={startRecording} variant={"primary"}>
+              <Mic className="w-5 h-5 mr-2" />
+              Start Recording
+            </Button>
+          )}
         </>
       )}
 
@@ -292,7 +304,7 @@ export default function CelpipTestDashboard({
           <div className="flex gap-4 justify-center">
             <Button
               onClick={submitAudio}
-              variant={"gradient-green"}
+              variant={"primary"}
               disabled={isSubmitting}
               size={"lg"}
             >

@@ -1,11 +1,8 @@
 import { useState } from "react";
 import AudioRecorder from "./components/AudioRecorder";
-import WritingEditor from "./components/WritingEditor";
 import { PlanModal } from "./components/Modals";
 import ScoreRing from "./components/ScoreRing";
-import Modal from "@/components/ui/modal";
-import { Modal as BootstrapModal } from "bootstrap";
-import LoginForm from "@/components/LoginForm";
+import WritingEditor from "./components/WritingEditor";
 import { useAuth } from "@/comman/contexts/AuthContext";
 import { Link } from "react-router-dom";
 
@@ -724,13 +721,6 @@ const App = () => {
       <MobileRoot />
 
       <PlanModal />
-      <Modal title="Boost Plan Sign-In" id={"loginModal"}>
-        <LoginForm
-          onLogin={() => {
-            BootstrapModal.getInstance("#loginModal")?.hide();
-          }}
-        />
-      </Modal>
     </>
   );
 };

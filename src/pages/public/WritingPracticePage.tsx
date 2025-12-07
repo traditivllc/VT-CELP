@@ -69,7 +69,7 @@ const WritingPracticePage = () => {
         <div className="p-6 border-b">
           <Link
             to="/"
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 !no-underline"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -106,7 +106,7 @@ const WritingPracticePage = () => {
                         <Check className="w-4 h-4 text-success-foreground" />
                       </div>
                     ) : status === "unlocked" ? (
-                      <div className="w-6 h-6 brand-green-gradient rounded-full flex items-center justify-center">
+                      <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center">
                         <PenTool className="w-3 h-3 text-primary-foreground" />
                       </div>
                     ) : (

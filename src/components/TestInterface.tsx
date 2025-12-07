@@ -53,8 +53,8 @@ const TestInterface = ({
                 </div>
               </div>
               <div>
-                <Alert variant={"info"} className="!py-2 px-8">
-                  <AlertDescription className="flex items-center gap-2">
+                <Alert variant={"info"} className="!py-2 px-8 ">
+                  <AlertDescription className="flex items-center gap-2 !text-white">
                     <Timer
                       initialTime={assessment.responseTime}
                       isRunning={isTimeRunning}

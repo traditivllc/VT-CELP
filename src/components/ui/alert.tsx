@@ -15,9 +15,9 @@ const alertVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
 
         success:
-          "border-green-500/50 bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200 [&>svg]:text-green-600 *:data-[slot=alert-description]:text-green-700 dark:*:data-[slot=alert-description]:text-green-300",
+          "border-green-500/50 bg-green-50 text-green-800 dark:text-green-200 [&>svg]:text-green-600 *:data-[slot=alert-description]:text-green-700 dark:*:data-[slot=alert-description]:text-green-300",
 
-        info: "border-blue-500/50 bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-200 [&>svg]:text-blue-600 *:data-[slot=alert-description]:text-blue-700 dark:*:data-[slot=alert-description]:text-blue-300",
+        info: "border-blue-500/50 bg-blue-50 text-blue-800  dark:text-blue-200 [&>svg]:text-blue-600 *:data-[slot=alert-description]:text-blue-700 dark:*:data-[slot=alert-description]:text-blue-300",
 
         warning:
           "border-yellow-500/50 bg-yellow-50 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200 [&>svg]:text-yellow-600 *:data-[slot=alert-description]:text-yellow-700 dark:*:data-[slot=alert-description]:text-yellow-300",

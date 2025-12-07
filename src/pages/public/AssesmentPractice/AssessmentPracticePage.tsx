@@ -30,21 +30,10 @@ const PracticePage = () => {
     action: "result";
   }>();
 
-  const { isTimeRunning } = useEvaluation();
+  const { isTimeRunning, isLocked } = useEvaluation();
 
   // Handle responsive sidebar behavior
   useEffect(() => {
-    async function fetchPrompts() {
-      const prompts = await getPromptsByTypeWithRandomQuestion(
-        testType || "speaking"
-      );
-      setPromptsList(prompts);
-      setSelectedPrompt(
-        prompts.find((prompt) => prompt.promptUuid === taskTypeUUID) || null
-      );
-    }
-    fetchPrompts();
-
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         // lg breakpoint
@@ -60,6 +49,19 @@ const PracticePage = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    async function fetchPrompts() {
+      const prompts = await getPromptsByTypeWithRandomQuestion(
+        testType || "speaking"
+      );
+      setPromptsList(prompts);
+      setSelectedPrompt(
+        prompts.find((prompt) => prompt.promptUuid === taskTypeUUID) || null
+      );
+    }
+    fetchPrompts();
+  }, [taskTypeUUID, testType]);
 
   // setSelectedTask(prompt.id);
 
@@ -84,6 +86,35 @@ const PracticePage = () => {
       return;
     }
   }, [taskTypeUUID]);
+
+  const ListBadge = ({
+    prompt,
+  }: {
+    prompt: PromptsWithQuestionAndEvaluation;
+  }) => {
+    const status = prompt.status;
+
+    if (status === EVALUATION_STATUS.COMPLETED) {
+      return (
+        <Badge variant="default" className="bg-green-500 text-white">
+          Done
+        </Badge>
+      );
+    }
+
+    if (isLocked(prompt)) {
+      return <Badge variant="secondary">Locked</Badge>;
+    }
+
+    return (
+      <Badge
+        variant={"secondary"}
+        className={"bg-blue-500 text-primary-foreground"}
+      >
+        Ready
+      </Badge>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background flex relative">
@@ -112,7 +143,7 @@ const PracticePage = () => {
           <div className="flex items-center justify-between mb-4">
             <Link
               to="/"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground !no-underline"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Dashboard
@@ -141,14 +172,16 @@ const PracticePage = () => {
               <Card
                 key={prompt.promptUuid}
                 className={cn(
-                  `p-4 cursor-pointer transition-all hover:shadow-md `,
+                  `p-3 cursor-pointer transition-all hover:shadow-md hover:scale-102 active:scale-95 `,
+                  isLocked(prompt) || isTimeRunning
+                    ? "opacity-60 cursor-not-allowed"
+                    : "",
                   // prompt.promptUuid == taskTypeUUID ? "!border-gray-700" : "",
-                  // status === EVALUATION_STATUS.COMPLETED
-                  //   ? "bg-success-light border-success"
-                  //   : status === EVALUATION_STATUS.IN_PROGRESS
-                  //   ? "hover:bg-accent"
-                  //   : "opacity-60 cursor-not-allowed",
-                  isTimeRunning ? "opacity-60 cursor-not-allowed" : ""
+                  status === EVALUATION_STATUS.COMPLETED
+                    ? "bg-success-light border-success"
+                    : status === EVALUATION_STATUS.IN_PROGRESS
+                    ? "hover:bg-accent"
+                    : ""
                 )}
                 onClick={() => {
                   if (status === EVALUATION_STATUS.COMPLETED) {
@@ -170,7 +203,7 @@ const PracticePage = () => {
                         <Check className="w-4 h-4 text-success-foreground" />
                       </div>
                     ) : status !== EVALUATION_STATUS.IN_PROGRESS ? (
-                      <div className="w-6 h-6 brand-green-gradient rounded-full flex items-center justify-center">
+                      <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center">
                         <Play className="w-3 h-3 text-primary-foreground fill-current" />
                       </div>
                     ) : (
@@ -182,31 +215,12 @@ const PracticePage = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-sm truncate">
+                      <h6 className="font-medium truncate mb-0 ">
                         {prompt.name}
-                      </h4>
-                      <Badge
-                        variant={
-                          status === EVALUATION_STATUS.COMPLETED
-                            ? "default"
-                            : "secondary"
-                        }
-                        className={
-                          status === EVALUATION_STATUS.COMPLETED
-                            ? "bg-green-500 text-white"
-                            : status !== EVALUATION_STATUS.CANCELLED
-                            ? "bg-blue-500 text-primary-foreground"
-                            : ""
-                        }
-                      >
-                        {status === EVALUATION_STATUS.COMPLETED
-                          ? "Done"
-                          : status !== EVALUATION_STATUS.CANCELLED
-                          ? "Ready"
-                          : "Locked"}
-                      </Badge>
+                      </h6>
+                      <ListBadge prompt={prompt} />
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mb-0">
                       {prompt.shortDescription}
                     </p>
                   </div>
