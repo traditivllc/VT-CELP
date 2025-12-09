@@ -33,7 +33,7 @@ export default function TaskListPage() {
           </div>
 
           <div className="space-y-3">
-            {typeList.reverse().map((part, index) => (
+            {typeList.map((part, index) => (
               <Link
                 to={`/test/${testTypeSlug}/${part.promptUuid}`}
                 key={part.namePrefix}
