@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const WritingEditor = ({
   id,
@@ -9,7 +10,6 @@ const WritingEditor = ({
   prompt: string;
   storageKey: string;
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [text, setText] = useState("");
   const [timer, setTimer] = useState(0);
   const [status, setStatus] = useState("");
@@ -37,18 +37,18 @@ const WritingEditor = ({
     return () => clearInterval(interval);
   }, [isActive]);
 
-  const handleToggle = () => {
-    const newState = !isExpanded;
-    setIsExpanded(newState);
-    if (newState && timer === 0) setIsActive(true);
-    else if (!newState) setIsActive(false);
-  };
-
   const handleSave = () => {
     localStorage.setItem(storageKey, text);
     setStatus("Draft saved locally.");
   };
 
+  /*************  ✨ Windsurf Command ⭐  *************/
+  /**
+   * Handles submitting the writing test.
+   * If the text is empty, sets a status message to inform the user.
+   * Otherwise, removes the draft from local storage, sets a status message and stops the timer.
+   */
+  /*******  71513ab9-883f-4d65-b3e2-b39df6b1be44  *******/
   const handleSubmit = () => {
     if (!text.trim()) {
       setStatus("Please write something before submitting.");
@@ -77,16 +77,10 @@ const WritingEditor = ({
 
   return (
     <>
-      {!isExpanded && (
-        <button className="btn brand-btn w-100 mb-2" onClick={handleToggle}>
-          <i className="bi bi-pencil-square"></i> Start New Writing Task
-        </button>
-      )}
-
-      <div
-        className={`write-panel mt-3 ${!isExpanded ? "d-none" : ""}`}
-        id={id}
-      >
+      <Link to="/test/writing" className="btn brand-btn w-100 mb-2 text-white">
+        <i className="bi bi-pencil-square"></i> Start New Writing Task
+      </Link>
+      <div className={`write-panel mt-3 !hidden}`} id={id}>
         <div className="small text-secondary mb-1">
           Task prompt (sample): <b>{prompt}</b>
         </div>

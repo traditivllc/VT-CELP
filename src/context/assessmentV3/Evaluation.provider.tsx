@@ -45,14 +45,17 @@ export const EvaluationProvider: React.FC<{
     setCurrentAssessment(null);
     setCountDownTime(0);
   }, []);
-  const stopAssessment = useCallback(async (params: TFSubmitEvaluationAPI) => {
-    const res = await submitEvaluation(params);
-    if (!res) {
-      return false;
-    }
-    resetAssessment();
-    return res;
-  }, []);
+  const stopAssessment = useCallback(
+    async (params: TFSubmitEvaluationAPI) => {
+      const res = await submitEvaluation(params);
+      if (!res) {
+        return false;
+      }
+      resetAssessment();
+      return res;
+    },
+    [resetAssessment]
+  );
 
   const isLocked = (prompt: PromptsWithQuestionAndEvaluation) => {
     return isAuthenticated === false && prompt.isRequiredAuth == true;

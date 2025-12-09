@@ -1,34 +1,44 @@
 import { Button } from "@/components/ui/button";
+import { useEvaluation } from "@/context/assessmentV3/Evaluation.provider";
+import type {
+  EvaluationResult,
+  PromptsWithQuestionAndEvaluation,
+} from "@/types/AssessmentTypes.type";
 import { PenTool, RefreshCcw, SquarePause } from "lucide-react";
-import Timer from "../Timer";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useAssessment } from "@/context/assessmentV2/useAssessment";
-import type { EvaluationResponse } from "@/types/AssessmentTypes.type";
-import api from "@/lib/axios";
 import { useNavigate } from "react-router-dom";
+import Timer from "../Timer";
+import { toast } from "sonner";
 
 export default function CelpipWritingTest({
-  assessmentPromptUUID,
+  assessment,
 }: {
-  assessmentPromptUUID: string;
+  assessment: PromptsWithQuestionAndEvaluation | null;
 }) {
   const [phase, setPhase] = useState<
     "instruction" | "writing" | "review" | "results"
   >("instruction");
 
+  const currentAssessmentRef = useRef<EvaluationResult | null>(null);
+  const isTimeRunningRef = useRef<boolean>(false);
+
   const redirect = useNavigate();
 
-  const { getAssessmentHistory, isTimeRunning, setIsTimeRunning } =
-    useAssessment();
+  const {
+    startAssessment,
+    resetAssessment,
+    stopAssessment,
+    isTimeRunning,
+    currentAssessment,
+    isLocked,
+  } = useEvaluation();
 
-  const runningAssessment = getAssessmentHistory(assessmentPromptUUID);
+  if (currentAssessment) {
+    currentAssessmentRef.current = currentAssessment;
+    isTimeRunningRef.current = isTimeRunning;
+  }
 
   // Modal and writing state
-  const { setAsCompleted, setIsStarted } = useAssessment();
-
-  const [responseTime, setResponseTime] = useState<number>(
-    runningAssessment?.responseTime || 60
-  );
 
   const [writtenResponse, setWrittenResponse] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,9 +48,11 @@ export default function CelpipWritingTest({
 
   // Start writing
   const startWriting = useCallback(async () => {
-    setIsStarted(runningAssessment?.promptUUID || "");
+    await startAssessment({
+      promptUUID: assessment?.promptUuid || "",
+      questionUUID: assessment?.question.uuid || "",
+    });
     setWrittenResponse("");
-    setResponseTime(runningAssessment?.responseTime || 35);
 
     // Clear any previous timer
     if (timerRef.current) {
@@ -48,55 +60,25 @@ export default function CelpipWritingTest({
       timerRef.current = null;
     }
 
-    setIsTimeRunning(true);
     setPhase("writing");
 
     // Focus on textarea after state update
     setTimeout(() => {
       textareaRef.current?.focus();
     }, 100);
-  }, [
-    runningAssessment?.responseTime,
-    runningAssessment?.promptUUID,
-    setIsStarted,
-  ]);
+  }, [assessment?.promptUuid, assessment?.question.uuid, startAssessment]);
 
   const reset = useCallback(() => {
     setPhase("instruction");
-    setIsTimeRunning(false);
-    setResponseTime(runningAssessment?.responseTime || 126);
     setWrittenResponse("");
     setIsSubmitting(false);
+    resetAssessment();
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, [runningAssessment?.responseTime]);
-
-  useEffect(() => {
-    if (isTimeRunning) {
-      let timeC = responseTime;
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      timerRef.current = setInterval(() => {
-        if (timeC <= 0) {
-          handleStop();
-          clearInterval(timerRef.current!);
-          timerRef.current = null;
-        }
-        timeC = timeC - 1;
-      }, 1000);
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [isTimeRunning, responseTime]);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -105,9 +87,7 @@ export default function CelpipWritingTest({
   }, [reset]);
 
   const retakeWriting = () => {
-    setWrittenResponse("");
-    setResponseTime(runningAssessment?.responseTime || 126);
-    setIsTimeRunning(false);
+    reset();
 
     // Clear any previous timer
     if (timerRef.current) {
@@ -122,32 +102,37 @@ export default function CelpipWritingTest({
     if (!writtenResponse.trim()) return;
     setIsSubmitting(true);
 
-    try {
-      const res = await api.post<EvaluationResponse>(
-        `/celpip/writing?promptUUID=${runningAssessment?.promptUUID}&questionUUID=${runningAssessment?.questionUUID}&targetingScore=${runningAssessment?.targetingScore}`,
-        {
-          text: writtenResponse,
-        },
-        {
-          timeout: 60000, // 60 seconds timeout
-        }
+    if (isLocked(assessment!)) {
+      toast.error(
+        "You have reached the maximum number of attempts. Please try again later."
       );
-
-      console.log("Response from server:", res.data);
-
-      // Save to history after successful test
-      if (runningAssessment?.promptUUID && res.data) {
-        setAsCompleted(runningAssessment?.promptUUID, res.data);
-        redirect(`/test/writing/${runningAssessment?.promptUUID}/result`);
-      }
-    } catch (err) {
-      console.error("Error submitting writing:", err);
+      return;
     }
+
+    if (!assessment) return;
+    if (currentAssessmentRef.current?.evaluationUuid)
+      try {
+        const result = await stopAssessment({
+          type: "writing",
+          evaluationUUID: currentAssessmentRef.current?.evaluationUuid,
+          text: writtenResponse,
+        });
+
+        console.log("Response from server:", result);
+
+        if (result) {
+          redirect(
+            `/test/writing/${assessment.promptUuid}/result?evaluationUUID=${result.data.evaluationUUID}`
+          );
+        }
+      } catch (err) {
+        console.error("Error submitting writing:", err);
+      }
     setIsSubmitting(false);
   };
 
   const handleStop = useCallback(() => {
-    setIsTimeRunning(false);
+    resetAssessment();
     setPhase("review");
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -158,10 +143,6 @@ export default function CelpipWritingTest({
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setWrittenResponse(e.target.value);
   };
-
-  if (!runningAssessment) {
-    return null;
-  }
 
   const wordCount = writtenResponse
     .trim()
@@ -174,9 +155,9 @@ export default function CelpipWritingTest({
         <>
           <h3 className="text-xl font-semibold mb-4">Ready to Write?</h3>
           <p className="text-muted-foreground mb-8">
-            Click the button below to start writing. You'll have {responseTime}{" "}
-            seconds to complete your response. Make sure you have a clear
-            understanding of the prompt before beginning.
+            Click the button below to start writing. You'll have{" "}
+            {assessment?.responseTime} seconds to complete your response. Make
+            sure you have a clear understanding of the prompt before beginning.
           </p>
           <Button size="lg" onClick={startWriting} variant={"gradient-green"}>
             <PenTool className="w-5 h-5 mr-2" />
@@ -194,9 +175,12 @@ export default function CelpipWritingTest({
           <p className="text-muted-foreground mb-4">
             Write your response clearly and thoroughly. Time remaining:{" "}
             <Timer
-              initialTime={responseTime}
+              initialTime={
+                currentAssessmentRef.current?.promptQuestion.celpTestPrompt
+                  .responseTime || 0
+              }
               onTimeUp={() => handleStop()}
-              isRunning={isTimeRunning}
+              isRunning={isTimeRunningRef.current}
               inline
             />
             seconds

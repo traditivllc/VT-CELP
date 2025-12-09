@@ -84,4 +84,17 @@ export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
 
     return res.data;
   }
+  if (type === "writing") {
+    const res = await api.post<TEvaluationSubmit>(
+      `${buildUrl(API_ENDPOINTS.CELPIP_SUBMIT_EVALUATION, {
+        type: type,
+      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}`,
+      { text: params.text },
+      {
+        timeout: 60000, // 60 seconds timeout
+      }
+    );
+
+    return res.data;
+  }
 };

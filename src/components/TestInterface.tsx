@@ -8,6 +8,7 @@ import Timer from "./Timer";
 import { Alert, AlertDescription } from "./ui/alert";
 import type { PromptsWithQuestionAndEvaluation } from "@/types/AssessmentTypes.type";
 import { useEvaluation } from "@/context/assessmentV3/Evaluation.provider";
+import CelpipWritingTest from "./celpip/CelpipTestWriting";
 
 const TestInterface = ({
   assessment,
@@ -87,12 +88,8 @@ const TestInterface = ({
                   switch (type) {
                     case "speaking":
                       return <CelpipTestSpeaking assessment={assessment} />;
-                    // case "writing":
-                    //   return (
-                    //     <CelpipWritingTest
-                    //       assessmentPromptUUID={assessmentPromptUUID}
-                    //     />
-                    //   );
+                    case "writing":
+                      return <CelpipWritingTest assessment={assessment} />;
                     default:
                       return null;
                   }
