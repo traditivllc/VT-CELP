@@ -84,10 +84,8 @@ export type EvaluationStatus =
   (typeof EVALUATION_STATUS)[keyof typeof EVALUATION_STATUS];
 
 export interface EvaluationResult {
-  evaluationId: number;
   evaluationUuid: string;
   sessionId: string;
-  customerId: number;
   score: string;
   status: EvaluationStatus;
   feedback: string[];

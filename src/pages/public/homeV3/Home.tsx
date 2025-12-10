@@ -1,30 +1,14 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import AudioRecorder from "./components/AudioRecorder";
 import { PlanModal } from "./components/Modals";
 import ScoreRing from "./components/ScoreRing";
 import WritingEditor from "./components/WritingEditor";
 import { useAuth } from "@/comman/contexts/AuthContext";
 import { Link } from "react-router-dom";
+import { EvaluationHistory } from "./components/EvaluationHistory";
 
 // --- DESKTOP COMPONENT ---
 const DesktopRoot = () => {
-  const handleExportCsv = () => {
-    // Simple CSV Export logic
-    const data = [
-      ["Date", "Type", "Prompt", "CLB"],
-      ["Nov 10, 2025", "Speaking", "Difficult Choice", "8"],
-      ["Nov 06, 2025", "Speaking", "Advise Friend", "7"],
-    ];
-    const csvContent =
-      "data:text/csv;charset=utf-8," + data.map((e) => e.join(",")).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "celpip_attempts.csv");
-    document.body.appendChild(link);
-    link.click();
-  };
-
   const { currentCustomer } = useAuth();
 
   return (
@@ -268,53 +252,9 @@ const DesktopRoot = () => {
                 </div>
 
                 <div className="col-12 col-xl-7">
-                  <div className="card h-100">
-                    <div className="card-body">
-                      <h6 className="mb-3">Attempt History — Speaking</h6>
-                      <div className="table-responsive">
-                        <table className="table align-middle">
-                          <thead className="table-light">
-                            <tr>
-                              <th>Date</th>
-                              <th>Prompt</th>
-                              <th>CLB</th>
-                              <th>Fluency</th>
-                              <th>Vocab</th>
-                              <th>Pron.</th>
-                              <th>Task</th>
-                              <th className="text-end">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>Nov 10, 2025</td>
-                              <td>Describe a difficult choice…</td>
-                              <td>
-                                <span className="badge text-bg-success-subtle">
-                                  8
-                                </span>
-                              </td>
-                              <td>7.5</td>
-                              <td>8.0</td>
-                              <td>7.0</td>
-                              <td>8.0</td>
-                              <td className="text-end">
-                                <button className="btn btn-sm btn-outline-primary">
-                                  <i className="bi bi-play-circle"></i>
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-outline-secondary"
-                                  onClick={handleExportCsv}
-                                >
-                                  <i className="bi bi-download"></i>
-                                </button>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
+                  <Suspense fallback={<p>Loading...</p>}>
+                    <EvaluationHistory />
+                  </Suspense>
                 </div>
               </div>
             </div>
@@ -367,47 +307,7 @@ const DesktopRoot = () => {
 
                 {/* History Table Writing */}
                 <div className="col-12 col-xl-7">
-                  <div className="card h-100">
-                    <div className="card-body">
-                      <h6 className="mb-3">Attempt History — Writing</h6>
-                      <div className="table-responsive">
-                        <table className="table align-middle">
-                          <thead className="table-light">
-                            <tr>
-                              <th>Date</th>
-                              <th>Task</th>
-                              <th>CLB</th>
-                              <th>Grammar</th>
-                              <th>Vocab</th>
-                              <th>Coherence</th>
-                              <th>Task</th>
-                              <th className="text-end">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>Nov 09, 2025</td>
-                              <td>Email — Complaint to landlord</td>
-                              <td>
-                                <span className="badge text-bg-warning-subtle">
-                                  7
-                                </span>
-                              </td>
-                              <td>6.5</td>
-                              <td>7.5</td>
-                              <td>6.5</td>
-                              <td>7.0</td>
-                              <td className="text-end">
-                                <button className="btn btn-sm btn-outline-primary">
-                                  <i className="bi bi-file-text"></i>
-                                </button>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
+                  <EvaluationHistory type="writing" />
                 </div>
               </div>
             </div>
