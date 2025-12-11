@@ -3,6 +3,7 @@ import { buildUrl } from "@/lib/utils";
 import type { TFSubmitEvaluationAPI } from "@/types/API-URLs.enum";
 import { API_ENDPOINTS } from "@/types/Api.type";
 import type {
+  CustomerAnalytics,
   EvaluationResult,
   PromptQuestion,
   PromptsWithQuestionAndEvaluation,
@@ -98,3 +99,11 @@ export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
     return res.data;
   }
 };
+
+export async function getAnalytics(): Promise<CustomerAnalytics> {
+  const res = await api.get<CustomerAnalytics>(
+    API_ENDPOINTS.EVALUATION_ANALYTICS
+  );
+
+  return res.data;
+}
