@@ -69,13 +69,13 @@ export const createEvaluation = async (data: CreateEvaluationDataTypes) => {
 };
 
 export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
-  const { type, evaluationUUID, targetingScore = 12 } = params;
+  const { type, evaluationUUID, targetingScore = 12, timeTaken } = params;
 
   if (type === "speaking") {
     const res = await api.postForm<TEvaluationSubmit>(
       `${buildUrl(API_ENDPOINTS.CELPIP_SUBMIT_EVALUATION, {
         type: type,
-      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}`,
+      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}&timeTaken=${timeTaken}`,
       params.formData,
       {
         timeout: 60000, // 60 seconds timeout
@@ -88,7 +88,7 @@ export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
     const res = await api.post<TEvaluationSubmit>(
       `${buildUrl(API_ENDPOINTS.CELPIP_SUBMIT_EVALUATION, {
         type: type,
-      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}`,
+      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}&timeTaken=${timeTaken}`,
       { text: params.text },
       {
         timeout: 60000, // 60 seconds timeout

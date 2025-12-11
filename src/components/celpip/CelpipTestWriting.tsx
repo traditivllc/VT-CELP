@@ -22,6 +22,11 @@ export default function CelpipWritingTest({
   const currentAssessmentRef = useRef<EvaluationResult | null>(null);
   const isTimeRunningRef = useRef<boolean>(false);
 
+  /**
+   * this will be used to calculate the time taken to write
+   */
+  const timeTaken = useRef<number>(0);
+
   const redirect = useNavigate();
 
   const {
@@ -53,7 +58,7 @@ export default function CelpipWritingTest({
       questionUUID: assessment?.question.uuid || "",
     });
     setWrittenResponse("");
-
+    if (timeTaken.current === 0) timeTaken.current = Date.now();
     // Clear any previous timer
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -69,6 +74,7 @@ export default function CelpipWritingTest({
   }, [assessment?.promptUuid, assessment?.question.uuid, startAssessment]);
 
   const reset = useCallback(() => {
+    timeTaken.current = 0;
     setPhase("instruction");
     setWrittenResponse("");
     setIsSubmitting(false);
@@ -110,15 +116,14 @@ export default function CelpipWritingTest({
     }
 
     if (!assessment) return;
-    if (currentAssessmentRef.current?.evaluationUuid)
+    if (currentAssessmentRef.current?.evaluationUuid) {
       try {
         const result = await stopAssessment({
           type: "writing",
           evaluationUUID: currentAssessmentRef.current?.evaluationUuid,
           text: writtenResponse,
+          timeTaken: timeTaken.current, // in seconds
         });
-
-        console.log("Response from server:", result);
 
         if (result) {
           redirect(
@@ -128,17 +133,19 @@ export default function CelpipWritingTest({
       } catch (err) {
         console.error("Error submitting writing:", err);
       }
+    }
     setIsSubmitting(false);
   };
 
   const handleStop = useCallback(() => {
+    timeTaken.current = Math.round((Date.now() - timeTaken.current) / 1000);
     resetAssessment();
     setPhase("review");
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, []);
+  }, [resetAssessment]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setWrittenResponse(e.target.value);

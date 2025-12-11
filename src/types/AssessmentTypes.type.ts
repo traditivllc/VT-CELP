@@ -99,7 +99,7 @@ export interface EvaluationResult {
       celpTestType: Omit<TestType, "testPrompts">;
     };
   };
-  responseTime: string;
+  timeTaken: string;
   targetingScore: string;
   previousScore: string;
   isCompletedOnce: boolean;
