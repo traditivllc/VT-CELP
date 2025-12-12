@@ -128,7 +128,7 @@ export function EvaluationHistory(props: Props) {
                       </span>
                     </td>
                     <td className="text-nowrap">
-                      {Math.round(parseFloat(item.responseTime))}s
+                      {Math.round(parseFloat(item.timeTaken))}s
                     </td>
                     <td>
                       <span

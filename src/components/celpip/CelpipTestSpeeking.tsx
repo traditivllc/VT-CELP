@@ -187,13 +187,15 @@ export default function CelpipTestDashboard({
     formData.append("audio", audioBlob, "recording.webm");
 
     const promptUUID = assessment?.promptUuid;
-    // evaluationUUID: string;
-    //       formData: FormData;
+    if (recordedTime <= 0) {
+      toast.error("No audio recorded. Please try again.");
+    }
     try {
       const result = await stopAssessment({
         type: "speaking",
         evaluationUUID: currentAssessmentRef.current.evaluationUuid,
         formData,
+        timeTaken: recordedTime,
       });
 
       // Save to history after successful test

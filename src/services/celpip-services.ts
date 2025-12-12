@@ -3,6 +3,7 @@ import { buildUrl } from "@/lib/utils";
 import type { TFSubmitEvaluationAPI } from "@/types/API-URLs.enum";
 import { API_ENDPOINTS } from "@/types/Api.type";
 import type {
+  CustomerAnalytics,
   EvaluationResult,
   PromptQuestion,
   PromptsWithQuestionAndEvaluation,
@@ -69,13 +70,13 @@ export const createEvaluation = async (data: CreateEvaluationDataTypes) => {
 };
 
 export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
-  const { type, evaluationUUID, targetingScore = 12 } = params;
+  const { type, evaluationUUID, targetingScore = 12, timeTaken } = params;
 
   if (type === "speaking") {
     const res = await api.postForm<TEvaluationSubmit>(
       `${buildUrl(API_ENDPOINTS.CELPIP_SUBMIT_EVALUATION, {
         type: type,
-      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}`,
+      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}&timeTaken=${timeTaken}`,
       params.formData,
       {
         timeout: 60000, // 60 seconds timeout
@@ -88,7 +89,7 @@ export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
     const res = await api.post<TEvaluationSubmit>(
       `${buildUrl(API_ENDPOINTS.CELPIP_SUBMIT_EVALUATION, {
         type: type,
-      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}`,
+      })}?evaluationUUID=${evaluationUUID}&targetingScore=${targetingScore}&timeTaken=${timeTaken}`,
       { text: params.text },
       {
         timeout: 60000, // 60 seconds timeout
@@ -98,3 +99,11 @@ export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
     return res.data;
   }
 };
+
+export async function getAnalytics(): Promise<CustomerAnalytics> {
+  const res = await api.get<CustomerAnalytics>(
+    API_ENDPOINTS.EVALUATION_ANALYTICS
+  );
+
+  return res.data;
+}

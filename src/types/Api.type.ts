@@ -23,4 +23,6 @@ export const API_ENDPOINTS = {
 
   CELPIP_START_EVALUATION: "/evaluation/create",
   CELPIP_SUBMIT_EVALUATION: "evaluation/submit/:type",
+
+  EVALUATION_ANALYTICS: "evaluation/analytics",
 } as const;

@@ -99,7 +99,7 @@ export interface EvaluationResult {
       celpTestType: Omit<TestType, "testPrompts">;
     };
   };
-  responseTime: string;
+  timeTaken: string;
   targetingScore: string;
   previousScore: string;
   isCompletedOnce: boolean;
@@ -179,4 +179,12 @@ export interface AssessmentHistory {
   isStarted?: boolean;
   isCompleted?: boolean; // Optional field to indicate if the test was completed
   isCompletedOnce?: boolean; // Ever completed the prompt
+}
+
+export interface CustomerAnalytics {
+  overallAvgScore: number | null;
+  scoreChangePercentage: number | null;
+  avgSpeakingScore: number | null;
+  avgWritingScore: number | null;
+  avgSecondsLast6Days: number | null;
 }

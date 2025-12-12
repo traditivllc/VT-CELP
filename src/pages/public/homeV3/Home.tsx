@@ -1,11 +1,11 @@
-import { Suspense, useState } from "react";
-import AudioRecorder from "./components/AudioRecorder";
-import { PlanModal } from "./components/Modals";
-import ScoreRing from "./components/ScoreRing";
-import WritingEditor from "./components/WritingEditor";
 import { useAuth } from "@/comman/contexts/AuthContext";
+import { Suspense, useState } from "react";
 import { Link } from "react-router-dom";
+import AudioRecorder from "./components/AudioRecorder";
 import { EvaluationHistory } from "./components/EvaluationHistory";
+import { KPIRow } from "./components/KPIRow";
+import { PlanModal } from "./components/Modals";
+import WritingEditor from "./components/WritingEditor";
 
 // --- DESKTOP COMPONENT ---
 const DesktopRoot = () => {
@@ -63,103 +63,7 @@ const DesktopRoot = () => {
 
       <main className="container my-4 position-relative">
         {/* KPI Row */}
-        <div className="row g-3">
-          <div className="col-12 col-lg-3">
-            <div className="card h-100">
-              <div className="card-body d-flex align-items-center justify-content-between">
-                <div>
-                  <div className="small text-secondary">Overall (latest)</div>
-                  <div className="h4 fw-bold mb-1">CLB 8</div>
-                  <div className="text-success small">
-                    <i className="bi bi-arrow-up-right"></i> +0.5 vs prev
-                  </div>
-                </div>
-                <ScoreRing clb={8} id="overallRing" />
-              </div>
-              <div className="card-footer bg-white">
-                <div className="d-flex justify-content-between small">
-                  <span>Progress to CLB 9</span>
-                  <span>89%</span>
-                </div>
-                <div className="progress mt-2">
-                  <div className="progress-bar" style={{ width: "89%" }}></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-12 col-lg-3">
-            <div className="card h-100 speak-card">
-              <div className="card-body d-flex align-items-center justify-content-between">
-                <div>
-                  <div className="small text-secondary">Speaking</div>
-                  <div className="h4 mb-1">CLB 8</div>
-                  <div className="d-flex flex-wrap gap-2 mt-2">
-                    <span className="chip">
-                      <i className="bi bi-speedometer2"></i> Fluency ↑
-                    </span>
-                    <span className="chip">
-                      <i className="bi bi-journal-check"></i> Task Fit
-                    </span>
-                  </div>
-                </div>
-                <ScoreRing clb={8} id="sRing" />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-12 col-lg-3">
-            <div className="card h-100 write-card">
-              <div className="card-body d-flex align-items-center justify-content-between">
-                <div>
-                  <div className="small text-secondary">Writing</div>
-                  <div className="h4 mb-1">CLB 7</div>
-                  <div className="d-flex flex-wrap gap-2 mt-2">
-                    <span className="chip">
-                      <i className="bi bi-spellcheck"></i> Grammar
-                    </span>
-                    <span className="chip">
-                      <i className="bi bi-diagram-3"></i> Coherence
-                    </span>
-                  </div>
-                </div>
-                <ScoreRing clb={7} id="wRing" />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-12 col-lg-3">
-            <div className="card h-100 position-relative overflow-visible">
-              <img
-                src="images/nurse.webp"
-                alt="coach"
-                className="nurse-float-card"
-                loading="lazy"
-              />
-              <div className="card-body">
-                <div className="d-flex justify-content-between">
-                  <div className="small text-secondary">Study streak</div>
-                  <span className="badge text-bg-success-subtle">Active</span>
-                </div>
-                <div className="display-6 fw-bold my-1">6 days</div>
-                <div className="small text-secondary">
-                  Avg 32m/day last week
-                </div>
-                <div className="progress mt-3">
-                  <div className="progress-bar" style={{ width: "60%" }}></div>
-                </div>
-              </div>
-              <div className="card-footer bg-white d-flex gap-2">
-                <button className="btn btn-outline-secondary btn-sm w-100">
-                  <i className="bi bi-clock-history"></i> Schedule
-                </button>
-                <button className="btn btn-outline-success btn-sm w-100">
-                  <i className="bi bi-bell"></i> Remind
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <KPIRow />
 
         {/* Tabs */}
         <div className="card mt-4">

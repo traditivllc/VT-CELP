@@ -20,11 +20,13 @@ export type TFSubmitEvaluationAPI = (
       type: "speaking";
       evaluationUUID: string;
       formData: FormData;
+      timeTaken: number;
     }
   | {
       type: "writing";
       evaluationUUID: string;
       text: string;
+      timeTaken: number;
     }
 ) & {
   targetingScore?: number;

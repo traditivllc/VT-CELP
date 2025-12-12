@@ -37,7 +37,9 @@ export const EvaluationProvider: React.FC<{
   const startAssessment = async (data: CreateEvaluationDataTypes) => {
     const created = await createEvaluation(data);
     console.log("created", created);
-    setCountDownTime(Number(created?.responseTime) || 60);
+    setCountDownTime(
+      Number(created?.promptQuestion.celpTestPrompt.responseTime) || 123
+    );
     setCurrentAssessment(created);
   };
 
