@@ -6,6 +6,7 @@ import { EvaluationHistory } from "./components/EvaluationHistory";
 import { KPIRow } from "./components/KPIRow";
 import { PlanModal } from "./components/Modals";
 import WritingEditor from "./components/WritingEditor";
+import Timeline from "./components/Timeline";
 
 // --- DESKTOP COMPONENT ---
 const DesktopRoot = () => {
@@ -219,35 +220,7 @@ const DesktopRoot = () => {
         </div>
 
         {/* Timeline */}
-        <section className="mb-4 mt-4">
-          <div className="card">
-            <div className="card-body">
-              <div className="d-flex align-items-center justify-content-between">
-                <div>
-                  <div className="section-title">
-                    Your Growth (last 8 attempts)
-                  </div>
-                  <div className="soft-label">From CLB 7 → 8</div>
-                </div>
-              </div>
-              <div className="timeline mt-3">
-                <div className="line">
-                  <div className="fill" style={{ width: "100%" }}></div>
-                </div>
-                <div className="dots">
-                  <div className="dot" data-label="M-7"></div>
-                  <div className="dot" data-label="M-6"></div>
-                  <div className="dot" data-label="M-5"></div>
-                  <div className="dot" data-label="M-4"></div>
-                  <div className="dot" data-label="Now-3"></div>
-                  <div className="dot" data-label="Now-2"></div>
-                  <div className="dot" data-label="Now-1"></div>
-                  <div className="dot" data-label="Now"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <Timeline />
 
         {/* Sticky CTA */}
         <div className="sticky-cta mt-4">

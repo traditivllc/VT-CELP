@@ -4,6 +4,7 @@ import type { TFSubmitEvaluationAPI } from "@/types/API-URLs.enum";
 import { API_ENDPOINTS } from "@/types/Api.type";
 import type {
   CustomerAnalytics,
+  CustomerScoreTimeLine,
   EvaluationResult,
   PromptQuestion,
   PromptsWithQuestionAndEvaluation,
@@ -103,6 +104,16 @@ export const submitEvaluation = async (params: TFSubmitEvaluationAPI) => {
 export async function getAnalytics(): Promise<CustomerAnalytics> {
   const res = await api.get<CustomerAnalytics>(
     API_ENDPOINTS.EVALUATION_ANALYTICS
+  );
+
+  return res.data;
+}
+
+export async function getEvaluationTimeline(): Promise<
+  CustomerScoreTimeLine[]
+> {
+  const res = await api.get<CustomerScoreTimeLine[]>(
+    API_ENDPOINTS.EVALUATION_CUSTOMER_TIMELINE
   );
 
   return res.data;
