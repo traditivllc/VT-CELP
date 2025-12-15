@@ -189,6 +189,7 @@ export default function CelpipTestDashboard({
     const promptUUID = assessment?.promptUuid;
     if (recordedTime <= 0) {
       toast.error("No audio recorded. Please try again.");
+      return;
     }
     try {
       const result = await stopAssessment({

@@ -188,3 +188,8 @@ export interface CustomerAnalytics {
   avgWritingScore: number | null;
   avgSecondsLast6Days: number | null;
 }
+
+export interface CustomerScoreTimeLine {
+  month: string;
+  totalScore: string;
+}
