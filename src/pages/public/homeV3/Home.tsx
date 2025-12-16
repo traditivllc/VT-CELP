@@ -1,11 +1,9 @@
 import { useAuth } from "@/comman/contexts/AuthContext";
 import { Suspense, useState } from "react";
 import { Link } from "react-router-dom";
-import AudioRecorder from "./components/AudioRecorder";
 import { EvaluationHistory } from "./components/EvaluationHistory";
 import { KPIRow } from "./components/KPIRow";
 import { PlanModal } from "./components/Modals";
-import WritingEditor from "./components/WritingEditor";
 import Timeline from "./components/Timeline";
 
 // --- DESKTOP COMPONENT ---
@@ -38,12 +36,12 @@ const DesktopRoot = () => {
             </div>
           </div>
           <div className="d-flex gap-2">
-            <button className="btn speak-btn btn-sm">
-              <i className="bi bi-mic"></i> Speaking Practice
-            </button>
-            <button className="btn write-btn btn-sm">
+            <Link to="/test/speaking" className="btn speak-btn btn-sm">
+              <i className="bi bi-pencil-square"></i> Speaking Practice
+            </Link>
+            <Link to="/test/writing" className="btn write-btn btn-sm">
               <i className="bi bi-pencil-square"></i> Writing Practice
-            </button>
+            </Link>
             <button
               className="btn cta-btn btn-sm"
               data-bs-toggle="modal"
@@ -201,11 +199,13 @@ const DesktopRoot = () => {
                         </div>
                       </div>
                       <hr />
-                      <WritingEditor
-                        id="deskWritingPanel"
-                        prompt="Write an email to your landlord explaining a problem in your apartment."
-                        storageKey="celpipDeskWritingDraft"
-                      />
+                      <Link
+                        to="/test/writing"
+                        className="btn brand-btn w-100 mb-2 text-white"
+                      >
+                        <i className="bi bi-pencil-square"></i> Start New
+                        Writing Task
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -339,12 +339,6 @@ const MobileRoot = () => {
                 <div className="progress-bar" style={{ width: "75%" }}></div>
               </div>
             </div>
-            <div className="mobile-card">
-              <AudioRecorder
-                id="mRecorderPanel"
-                prompt="Describe a time when you helped someone."
-              />
-            </div>
           </>
         );
       case "writing":
@@ -365,11 +359,12 @@ const MobileRoot = () => {
               </div>
             </div>
             <div className="mobile-card">
-              <WritingEditor
-                id="mWritingPanel"
-                prompt="Write an email to your manager requesting time off."
-                storageKey="celpipMobileWritingDraft"
-              />
+              <Link
+                to="/test/writing"
+                className="btn brand-btn w-100 mb-2 text-white"
+              >
+                <i className="bi bi-pencil-square"></i> Start New Writing Task
+              </Link>
             </div>
           </>
         );

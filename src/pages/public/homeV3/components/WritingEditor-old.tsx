@@ -1,3 +1,7 @@
+/**
+ * Come with the template. no longer using this component since the writing functionality was already done
+ */
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 

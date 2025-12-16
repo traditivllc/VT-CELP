@@ -1,5 +1,4 @@
-import { Modal as BootstrapModal } from "bootstrap";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 export default function Modal({
   id = "boostModal",
   onClose,
@@ -11,20 +10,11 @@ export default function Modal({
   children?: React.ReactNode;
   id?: string;
 }) {
-  const theModal = useRef<BootstrapModal | null>(null);
-
   useEffect(() => {
-    theModal.current = BootstrapModal.getOrCreateInstance(`#${id}`);
-    addEventListener("show.bs.modal", () => {
-      theModal.current?.show();
-    });
     return () => {
       onClose?.();
-      removeEventListener("show.bs.modal", () => {
-        theModal.current?.show();
-      });
     };
-  }, []);
+  }, [id, onClose]);
 
   return (
     <div className="modal fade" id={id} tabIndex={-1} aria-hidden="true">
