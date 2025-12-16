@@ -9,10 +9,12 @@ export default function Timeline() {
   >([]);
   const { isAuthenticated } = useAuth();
   useEffect(() => {
-    getEvaluationTimeline().then((res) => {
-      setEvaluationTimeline(res.reverse());
-    });
-  }, []);
+    if (isAuthenticated) {
+      getEvaluationTimeline().then((res) => {
+        setEvaluationTimeline(res.reverse());
+      });
+    }
+  }, [isAuthenticated]);
 
   if (evaluationTimeline.length === 0) {
     evaluationTimeline.push({
@@ -28,7 +30,7 @@ export default function Timeline() {
           Please Login to see your timeline
         </div>
       )}
-      <div className="card">
+      <div className="card  pb-6">
         <div className="card-body">
           <div className="d-flex align-items-center justify-content-between">
             <div>

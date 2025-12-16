@@ -1,61 +1,47 @@
-export const PlanModal = () => (
-  <div className="modal fade" id="planModal" tabIndex={-1} aria-hidden="true">
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content p-3 border-0 rounded-4">
-        <div className="modal-header border-0">
-          <h5 className="modal-title">
-            <i className="bi bi-lightning-fill text-warning"></i> Choose Your
-            Plan
-          </h5>
-          <button
-            className="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div className="modal-body">
-          <div className="row g-3">
-            <div className="col-12 col-md-6">
-              <div className="border rounded-4 p-3 h-100 text-center shadow-sm">
-                <h6 className="fw-bold">Basic</h6>
-                <div className="display-6 fw-bold text-primary">50 Tests</div>
-                <p className="small text-secondary mb-2">
-                  Perfect for quick practice.
-                </p>
-                <div className="h5">
-                  $9.99 CAD{" "}
-                  <small className="text-success">Limited Offer</small>
-                </div>
-              </div>
-            </div>
-            <div className="col-12 col-md-6">
-              <div className="border rounded-4 p-3 h-100 text-center shadow-sm">
-                <h6 className="fw-bold">Pro</h6>
-                <div className="display-6 fw-bold" style={{ color: "#8c00ff" }}>
-                  Unlimited
-                </div>
-                <p className="small text-secondary mb-2">
-                  Full access to all tests.
-                </p>
-                <div className="h5">$19.99 CAD / mo</div>
-              </div>
+import Modal from "@/components/ui/modal";
+
+export const PlanModal = () => {
+  return (
+    <Modal title="Choose Your Plan" id={"planModal"}>
+      <div className="row g-3">
+        <div className="col-12 col-md-6">
+          <div className="border rounded-4 p-3 h-100 text-center shadow-sm">
+            <h6 className="fw-bold">Basic</h6>
+            <div className="display-6 fw-bold text-primary">50 Tests</div>
+            <p className="small text-secondary mb-2">
+              Perfect for quick practice.
+            </p>
+            <div className="h5">
+              $9.99 CAD <small className="text-success">Limited Offer</small>
             </div>
           </div>
         </div>
-        <div className="modal-footer border-0 justify-content-center">
+        <div className="col-12 col-md-6">
+          <div className="border rounded-4 p-3 h-100 text-center shadow-sm">
+            <h6 className="fw-bold">Pro</h6>
+            <div className="display-6 fw-bold" style={{ color: "#8c00ff" }}>
+              Unlimited
+            </div>
+            <p className="small text-secondary mb-2">
+              Full access to all tests.
+            </p>
+            <div className="h5">$19.99 CAD / mo</div>
+          </div>
+        </div>
+        <div className="text-center">
           <button
             className="btn cta-btn"
             data-bs-dismiss="modal"
             data-bs-toggle="modal"
-            data-bs-target="#boostModal"
+            data-bs-target="#loginModal"
           >
             <i className="bi bi-rocket-takeoff"></i> Boost Plan
           </button>
         </div>
       </div>
-    </div>
-  </div>
-);
+    </Modal>
+  );
+};
 
 // export const BoostModal = ({
 //   onLogin,
