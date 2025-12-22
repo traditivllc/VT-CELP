@@ -1,6 +1,7 @@
 import { useAuth } from "@/comman/contexts/AuthContext";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import MobileRoot from "./MobileRoot";
 import { EvaluationHistory } from "./components/EvaluationHistory";
 import { KPIRow } from "./components/KPIRow";
 import { PlanModal } from "./components/Modals";
@@ -36,10 +37,16 @@ const DesktopRoot = () => {
             </div>
           </div>
           <div className="d-flex gap-2">
-            <Link to="/test/speaking" className="btn speak-btn btn-sm">
+            <Link
+              to="/test/speaking"
+              className="btn speak-btn text-white btn-sm"
+            >
               <i className="bi bi-pencil-square"></i> Speaking Practice
             </Link>
-            <Link to="/test/writing" className="btn write-btn btn-sm">
+            <Link
+              to="/test/writing"
+              className="btn write-btn btn-sm text-white"
+            >
               <i className="bi bi-pencil-square"></i> Writing Practice
             </Link>
             <button
@@ -50,7 +57,7 @@ const DesktopRoot = () => {
               <i className="bi bi-rocket-takeoff"></i> Boost Plan
             </button>
             <button
-              className="btn brand-btn btn-sm"
+              className="btn brand-btn btn-sm text-white"
               data-bs-toggle="modal"
               data-bs-target="#planModal"
             >
@@ -86,6 +93,16 @@ const DesktopRoot = () => {
                   type="button"
                 >
                   <i className="bi bi-pencil-square"></i> Writing
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  className="nav-link"
+                  data-bs-toggle="tab"
+                  data-bs-target="#listening"
+                  type="button"
+                >
+                  <i className="bi bi-ear"></i> Listening
                 </button>
               </li>
             </ul>
@@ -156,7 +173,7 @@ const DesktopRoot = () => {
 
                 <div className="col-12 col-xl-7">
                   <Suspense fallback={<p>Loading...</p>}>
-                    <EvaluationHistory />
+                    <EvaluationHistory type="speaking" />
                   </Suspense>
                 </div>
               </div>
@@ -262,215 +279,6 @@ const DesktopRoot = () => {
   );
 };
 
-// --- MOBILE COMPONENT ---
-const MobileRoot = () => {
-  const [activeScreen, setActiveScreen] = useState("home");
-
-  const renderScreen = () => {
-    switch (activeScreen) {
-      case "home":
-        return (
-          <>
-            <div className="mobile-card mobile-card-gradient">
-              <div className="mobile-kpi">
-                <div>
-                  <div className="small">Overall (latest)</div>
-                  <div className="h4 mb-0">CLB 8</div>
-                  <div className="small text-dark">+0.5 vs previous</div>
-                </div>
-                <div
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    borderRadius: "50%",
-                    background: "#fff3fb",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 700,
-                  }}
-                >
-                  89%
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="d-flex justify-content-between small mb-1">
-                  <span>Progress to CLB 9</span>
-                  <span>89%</span>
-                </div>
-                <div className="progress" style={{ height: "0.45rem" }}>
-                  <div className="progress-bar" style={{ width: "89%" }}></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mobile-card">
-              <div className="d-grid gap-2 mt-2">
-                <button
-                  className="mobile-cta-primary"
-                  onClick={() => setActiveScreen("speaking")}
-                >
-                  <i className="bi bi-mic"></i> Start Speaking Practice
-                </button>
-                <button
-                  className="mobile-cta-outline btn btn-outline-secondary"
-                  onClick={() => setActiveScreen("writing")}
-                >
-                  <i className="bi bi-pencil-square"></i> Start Writing Practice
-                </button>
-              </div>
-            </div>
-          </>
-        );
-      case "speaking":
-        return (
-          <>
-            <div className="mobile-card mobile-card-gradient">
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                  <div className="small">Speaking Practice</div>
-                  <div className="h5 mb-0">CLB 8 (target 9)</div>
-                </div>
-                <span className="badge bg-light text-dark border">
-                  Fluency focus
-                </span>
-              </div>
-              <div className="progress" style={{ height: "0.45rem" }}>
-                <div className="progress-bar" style={{ width: "75%" }}></div>
-              </div>
-            </div>
-          </>
-        );
-      case "writing":
-        return (
-          <>
-            <div className="mobile-card mobile-card-gradient">
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                  <div className="small">Writing Practice</div>
-                  <div className="h5 mb-0">CLB 7 (target 9)</div>
-                </div>
-                <span className="badge bg-light text-dark border">
-                  Grammar focus
-                </span>
-              </div>
-              <div className="progress" style={{ height: "0.45rem" }}>
-                <div className="progress-bar" style={{ width: "65%" }}></div>
-              </div>
-            </div>
-            <div className="mobile-card">
-              <Link
-                to="/test/writing"
-                className="btn brand-btn w-100 mb-2 text-white"
-              >
-                <i className="bi bi-pencil-square"></i> Start New Writing Task
-              </Link>
-            </div>
-          </>
-        );
-      case "history":
-        return (
-          <div className="mobile-card">
-            <div className="fw-semibold small mb-2">History</div>
-            <ul className="list-group list-group-flush small">
-              <li className="list-group-item d-flex justify-content-between align-items-center px-0">
-                <div>
-                  <div>Speaking · Difficult choice</div>
-                  <div className="text-secondary">Nov 10, 2025</div>
-                </div>
-                <span className="badge text-bg-success-subtle">CLB 8</span>
-              </li>
-              <li className="list-group-item d-flex justify-content-between align-items-center px-0">
-                <div>
-                  <div>Writing · Complaint to landlord</div>
-                  <div className="text-secondary">Nov 09, 2025</div>
-                </div>
-                <span className="badge text-bg-warning-subtle">CLB 7</span>
-              </li>
-            </ul>
-          </div>
-        );
-      case "profile":
-        return (
-          <div className="mobile-card">
-            <div className="fw-semibold small mb-2">Profile</div>
-            <div className="d-flex align-items-center gap-3 mb-2">
-              <div
-                className="rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: "42px", height: "42px", background: "#fee2f8" }}
-              >
-                <i className="bi bi-person-fill"></i>
-              </div>
-              <div>
-                <div className="fw-semibold">Guest User</div>
-              </div>
-            </div>
-            <button
-              className="mobile-cta-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#boostModal"
-            >
-              <i className="bi bi-envelope"></i> Sign in with email
-            </button>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div id="mobile-root">
-      <div className="mobile-app">
-        <header className="mobile-header">
-          <div>
-            <div className="mobile-header-title">
-              <img
-                style={{ width: "110px" }}
-                src="images/logo.png"
-                loading="lazy"
-                alt="logo"
-              />
-            </div>
-            <div className="mobile-header-sub">
-              CLB 8 · Target CLB 9 in 30 days
-            </div>
-          </div>
-        </header>
-
-        <main className="mobile-main">{renderScreen()}</main>
-
-        <nav className="mobile-bottom-nav">
-          {["home", "speaking", "writing", "history", "profile"].map((tab) => (
-            <button
-              key={tab}
-              className={`mobile-nav-btn ${
-                activeScreen === tab ? "active" : ""
-              }`}
-              onClick={() => setActiveScreen(tab)}
-            >
-              <i
-                className={`bi bi-${
-                  tab === "home"
-                    ? "house-door"
-                    : tab === "speaking"
-                    ? "mic"
-                    : tab === "writing"
-                    ? "pencil-square"
-                    : tab === "history"
-                    ? "clock-history"
-                    : "person"
-                }`}
-              ></i>
-              <span>{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
-            </button>
-          ))}
-        </nav>
-      </div>
-    </div>
-  );
-};
-
 // --- APP ROOT ---
 const App = () => {
   return (
@@ -490,7 +298,8 @@ const App = () => {
       />
 
       <DesktopRoot />
-      <MobileRoot />
+      {/* MobileRoot only render on small screens */}
+      <ConditionalMobile />
 
       <PlanModal />
     </>
@@ -498,3 +307,22 @@ const App = () => {
 };
 
 export default App;
+
+function ConditionalMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767.98px)");
+    const handle = (e: MediaQueryListEvent | MediaQueryList) =>
+      setIsMobile(e.matches);
+    setIsMobile(mq.matches);
+    if (mq.addEventListener) mq.addEventListener("change", handle);
+    else mq.addListener(handle);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", handle);
+      else mq.removeListener(handle);
+    };
+  }, []);
+
+  return isMobile ? <MobileRoot /> : null;
+}
