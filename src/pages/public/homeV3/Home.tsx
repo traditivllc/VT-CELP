@@ -37,10 +37,16 @@ const DesktopRoot = () => {
             </div>
           </div>
           <div className="d-flex gap-2">
-            <Link to="/test/speaking" className="btn speak-btn btn-sm">
+            <Link
+              to="/test/speaking"
+              className="btn speak-btn text-white btn-sm"
+            >
               <i className="bi bi-pencil-square"></i> Speaking Practice
             </Link>
-            <Link to="/test/writing" className="btn write-btn btn-sm">
+            <Link
+              to="/test/writing"
+              className="btn write-btn btn-sm text-white"
+            >
               <i className="bi bi-pencil-square"></i> Writing Practice
             </Link>
             <button
@@ -51,7 +57,7 @@ const DesktopRoot = () => {
               <i className="bi bi-rocket-takeoff"></i> Boost Plan
             </button>
             <button
-              className="btn brand-btn btn-sm"
+              className="btn brand-btn btn-sm text-white"
               data-bs-toggle="modal"
               data-bs-target="#planModal"
             >
@@ -62,7 +68,8 @@ const DesktopRoot = () => {
       </header>
 
       <main className="container my-4 position-relative">
-        {/* KPI removed here; KPIRow will render inside each tab */}
+        {/* KPI Row */}
+        <KPIRow />
 
         {/* Tabs */}
         <div className="card mt-4">
@@ -88,17 +95,21 @@ const DesktopRoot = () => {
                   <i className="bi bi-pencil-square"></i> Writing
                 </button>
               </li>
+              <li className="nav-item">
+                <button
+                  className="nav-link"
+                  data-bs-toggle="tab"
+                  data-bs-target="#listening"
+                  type="button"
+                >
+                  <i className="bi bi-ear"></i> Listening
+                </button>
+              </li>
             </ul>
           </div>
           <div className="card-body tab-content">
             {/* SPEAKING TAB */}
             <div className="tab-pane fade show active speak-tint" id="speaking">
-              <KPIRow />
-              <div className="d-flex justify-content-end mb-3">
-                <Link to="/test/speaking" className="btn brand-btn">
-                  <i className="bi bi-mic-fill"></i> Start Speaking Practice
-                </Link>
-              </div>
               <div className="row g-4">
                 <div className="col-12 col-xl-5">
                   <div className="card h-100">
@@ -162,7 +173,7 @@ const DesktopRoot = () => {
 
                 <div className="col-12 col-xl-7">
                   <Suspense fallback={<p>Loading...</p>}>
-                    <EvaluationHistory />
+                    <EvaluationHistory type="speaking" />
                   </Suspense>
                 </div>
               </div>
@@ -170,7 +181,6 @@ const DesktopRoot = () => {
 
             {/* WRITING TAB */}
             <div className="tab-pane fade write-tint" id="writing">
-              <KPIRow />
               <div className="row g-4">
                 <div className="col-12 col-xl-5">
                   <div className="card h-100">

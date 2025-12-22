@@ -383,7 +383,7 @@ body {
   .sticky-cta {
     position: sticky;
     bottom: 1rem;
-    z-index: 3;
+    z-index: 15;
   }
 
   .tab-pane.speak-tint {
